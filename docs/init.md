@@ -67,7 +67,7 @@ export DISCORD_SERVER_ID="" # DiscordのサーバーID
 下記のコマンドで、VoltaでNode.jsとnpmをインストールする  
 
 ```zsh
-volta install node@18.7.0 npm@8.15.1
+volta install node@18.8.0 npm@8.19.0
 
 npm install
 ```
