@@ -237,7 +237,7 @@ export class UserClient {
     // Deploy channel for hosting user image
     const userChannel = await this.channelClient.deployChannel(
       discordClient,
-      "mds-user",
+      "msd-user",
       "C0000000000",
       {
         channelType: 2,
@@ -277,7 +277,7 @@ export class UserClient {
    * Destroy channel for hosting user image
    */
   async destroyUserImageChannel(discordClient: DiscordClient) {
-    const userChannel = await this.channelClient.getChannel("mds-user", 2)
+    const userChannel = await this.channelClient.getChannel("msd-user", 2)
     if (!userChannel || !userChannel.deployId)
       throw new Error("Failed to get deployed channel for hosting user image")
 
