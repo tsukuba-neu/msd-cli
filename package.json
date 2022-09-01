@@ -17,8 +17,8 @@
     "destroy:user": "node --loader ts-node/esm ./command/destroy/user.mts",
     "destroy:message": "node --loader ts-node/esm ./command/destroy/message.mts",
     "all": "run-s migrate:channel deploy:channel migrate:user deploy:user migrate:message deploy:message",
-    "update": "npx ncu -u && npm install",
-    "prisma": "yes | npx prisma migrate dev --name init && npx prisma migrate dev"
+    "prisma": "yes | npx prisma migrate dev --name init && npx prisma migrate dev",
+    "update": "npx ncu -u && npm install"
   },
   "volta": {
     "node": "18.7.0",
@@ -31,7 +31,7 @@
     "commander": "^9.4.0",
     "date-fns": "^2.29.2",
     "discord.js": "^14.3.0",
-    "dotenv": "^16.0.1",
+    "dotenv": "^16.0.2",
     "picocolors": "^1.0.0",
     "prisma": "^4.3.0",
     "prompts": "^2.4.2",
