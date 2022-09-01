@@ -7,7 +7,6 @@ import { ChannelClient } from "./channel.mjs"
 
 interface SlackUserChannelFile {
   id?: string
-  is_bot?: boolean
   deleted?: boolean
   color?: string
   profile?: {
@@ -39,7 +38,6 @@ export class UserClient {
     const newUsers: User[] = slackUsers.map((user) => {
       if (
         user.id === undefined ||
-        user.is_bot === undefined ||
         user.deleted === undefined ||
         user.profile === undefined ||
         user.profile.real_name === undefined ||
@@ -52,8 +50,10 @@ export class UserClient {
         id: user.id,
         appId: user.profile.api_app_id || null,
         botId: user.profile.bot_id || null,
-        name: user.is_bot ? user.profile.real_name : user.profile.display_name,
-        type: user.is_bot
+        name: user.profile.bot_id
+          ? user.profile.real_name
+          : user.profile.display_name,
+        type: user.profile.bot_id
           ? 3 // Bot
           : user.deleted
           ? 2 // Cancel user
@@ -61,7 +61,6 @@ export class UserClient {
         color: user.color ? parseInt(user.color, 16) : parseInt("808080", 16),
         email: user.profile.email || null,
         imageUrl: user.profile.image_512,
-        isBot: user.is_bot,
         isDeleted: user.deleted,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -96,7 +95,6 @@ export class UserClient {
       result.user.profile?.display_name === undefined ||
       result.user?.color === undefined ||
       result.user?.profile?.image_512 === undefined ||
-      result.user?.is_bot === undefined ||
       result.user?.deleted === undefined
     )
       return null
@@ -105,7 +103,7 @@ export class UserClient {
       id: result.user.id,
       appId: result.user.profile.api_app_id || null,
       botId: result.user.profile.bot_id || null,
-      name: result.user.is_bot
+      name: result.user.profile.bot_id
         ? result.user.profile.real_name
         : result.user.profile.display_name,
       type: result.user.deleted ? 2 : 1,
@@ -114,7 +112,6 @@ export class UserClient {
         : parseInt("808080", 16),
       email: result.user.profile.email || null,
       imageUrl: result.user?.profile.image_512,
-      isBot: result.user.is_bot,
       isDeleted: result.user?.deleted,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -164,7 +161,6 @@ export class UserClient {
         color: parseInt("808080", 16),
         email: null,
         imageUrl: result.bot.icons.image_72,
-        isBot: true,
         isDeleted: result.bot.deleted,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -216,7 +212,6 @@ export class UserClient {
           color: user.color,
           email: user.email,
           imageUrl: user.imageUrl,
-          isBot: user.isBot,
           isDeleted: user.isDeleted,
         },
         create: {
@@ -228,7 +223,6 @@ export class UserClient {
           color: user.color,
           email: user.email,
           imageUrl: user.imageUrl,
-          isBot: user.isBot,
           isDeleted: user.isDeleted,
         },
       })
@@ -271,7 +265,6 @@ export class UserClient {
         name: user.name,
         email: user.email,
         imageUrl: message.attachments.map((file) => file.url)[0],
-        isBot: user.isBot,
         isDeleted: user.isDeleted,
         createdAt: new Date(),
         updatedAt: new Date(),
