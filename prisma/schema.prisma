@@ -37,7 +37,6 @@ model User {
   color     Int
   email     String?  @unique
   imageUrl  String
-  isBot     Boolean
   isDeleted Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
