@@ -51,7 +51,7 @@ Node.jsのバージョン管理のため、[公式サイトのスタートガイ
 下記のコマンドで、環境変数の設定ファイル`.env`を作成する  
 
 ```zsh
-cp .env.sample .env
+cp .env.example .env
 ```
 
 `.env`ファイルの環境変数の値に、SlackBotのトークン、DiscordBotのトークン、DiscordのサーバーIDなどの情報を設定する  
