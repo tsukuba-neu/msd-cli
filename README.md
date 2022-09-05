@@ -1,4 +1,4 @@
-# MSD CLI
+# MSD CLI (α)
 
 <p align="center">
   <img src="./docs/img/msd.png" width="300" height="300">
