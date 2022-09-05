@@ -24,14 +24,14 @@ MSDは(Migrate from Slack to Discord)の略称
 
 ## ドキュメント
 
-- [移行可能な項目と移行できない項目](./docs/migration.md)
+- [移行できる項目と移行できない項目](./docs/migration.md)
 - [仕様](./docs/specification.md)
 - [初回設定](./docs/init.md)
 - [参考リンク](./docs/reference.md)
 
 ## 使用方法
 
-[初回設定](./docs/initial-setting.md)でBotなどの設定を完了後、下記のコマンドを順次実行して移行します  
+[初回設定](./docs/initial-setting.md)を完了後、下記のコマンドを順次実行します
 
 ```zsh
 # 作業ディレクトリ初期化と移行用のSQLiteファイル作成を行う
@@ -60,8 +60,8 @@ npm run destroy:message
 npm run destroy:channel
 ```
 
-移行完了後はBotは不要になるため、念のため削除しておいた方が良いと思います  
-ユーザーの画像をホストするためのチャンネル`#msd-user`は、Discordの仕様上、[CDNにアップロードされたファイルを消えない](https://support.discord.com/hc/en-us/community/posts/360061593771-Privacy-for-CDN-attachements)ようなので、移行完了後は削除しても問題ありません  
+移行完了後はBotは不要になるため、念のため削除します  
+Discordの仕様上、[CDNにアップロードされたファイルを消えない](https://support.discord.com/hc/en-us/community/posts/360061593771-Privacy-for-CDN-attachements)ようなので、ユーザーの画像をホストするためのチャンネル`#msd-user`は移行完了後に任意で削除してください  
 
 ## デプロイが失敗した場合は?
 
