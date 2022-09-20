@@ -25,7 +25,8 @@ export const createDiscordClient = async (
   })
 
   await client.login(discordBotToken)
-  await new Promise<void>((resolve) => client.on("ready", () => resolve()))
+  // FIXME: Processing may not proceed from client create
+  // await new Promise<void>((resolve) => client.on("ready", () => resolve()))
 
   const guild = client.guilds.cache.get(discordServerId)
   if (!guild) {
