@@ -75,8 +75,8 @@ export class MessageClient {
             throw new Error("Message is missing required parameter")
           }
 
-          // Convert message content
-          const content = await this.convertMessageContent(
+          // Replace message content
+          const content = await this.replaceMessageContent(
             this.userClient,
             message.text
           )
@@ -453,11 +453,11 @@ export class MessageClient {
   }
 
   /**
-   * Convert message content
+   * Replace message content
    * @param userClient
    * @param content
    */
-  async convertMessageContent(userClient: UserClient, content: string) {
+  async replaceMessageContent(userClient: UserClient, content: string) {
     let newContent = content
 
     // Replace mention

@@ -34,7 +34,7 @@ export class UserClient {
   async migrateUser(userFilePath: string) {
     const slackUsers = await this.getSlackUserFile(userFilePath)
 
-    // Convert user data
+    // Replace user data
     const newUsers: User[] = slackUsers.map((user) => {
       if (
         user.id === undefined ||
@@ -52,7 +52,7 @@ export class UserClient {
         botId: user.profile.bot_id || null,
         name: user.profile.bot_id
           ? user.profile.real_name
-          : (user.profile.display_name || user.profile.real_name),
+          : user.profile.display_name || user.profile.real_name,
         type: user.profile.bot_id
           ? 3 // Bot
           : user.deleted
