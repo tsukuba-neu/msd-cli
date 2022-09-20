@@ -33,7 +33,7 @@ export class ChannelClient {
   async migrateChannel(channelFilePath: string) {
     const slackChannels = await this.getSlackChannelFile(channelFilePath)
 
-    // Convert channel data
+    // Replace channel data
     const newChannels: Channel[] = slackChannels.map((channel) => {
       if (
         channel.id === undefined ||

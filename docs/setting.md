@@ -47,9 +47,9 @@ cp .env.example .env
 `.env`ファイルの環境変数の値に、SlackBotのトークン、DiscordBotのトークン、DiscordのサーバーIDなどの情報を設定する  
 
 ```zsh
-export SLACK_BOT_TOKEN="" # SlackBotのトークン
-export DISCORD_BOT_TOKEN="" # DiscordBotのトークン
-export DISCORD_SERVER_ID="" # DiscordのサーバーID
+export SLACK_BOT_TOKEN=""
+export DISCORD_BOT_TOKEN=""
+export DISCORD_SERVER_ID=""
 ```
 
 <h2 id="setting-execution-environment">実行環境の設定</h2>

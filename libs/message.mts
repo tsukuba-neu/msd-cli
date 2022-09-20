@@ -75,8 +75,8 @@ export class MessageClient {
             throw new Error("Message is missing required parameter")
           }
 
-          // Convert message content
-          const content = await this.convertMessageContent(
+          // Replace message content
+          const content = await this.replaceMessageContent(
             this.userClient,
             message.text
           )
@@ -225,14 +225,8 @@ export class MessageClient {
     message: Message,
     maxFileSize: 8000000 | 50000000 | 100000000
   ) {
-    // Get post datetime of message
-    const postTime = format(
-      fromUnixTime(parseFloat(message.timestamp)),
-      " HH:mm"
-    )
-    const isoPostDatetime = formatISO(
-      fromUnixTime(parseFloat(message.timestamp))
-    )
+    // Get post timestamp of message
+    const timestamp = fromUnixTime(parseFloat(message.timestamp))
 
     let authorTypeIcon: "🟢" | "🔵" | "🤖" = "🟢"
     if (message.authorType === 2) authorTypeIcon = "🔵"
@@ -240,28 +234,27 @@ export class MessageClient {
 
     // Whether message has attached file only
     if (message.content) {
-      // FIXME: As an interim workaround, Embed cannot save message longer than 1024 characters and will truncate them
+      // WARN: Embed description cannot store message longer than 4096 characters
       const content =
-        message.content.length > 1024
-          ? message.content.substring(0, 1021) + "..."
-          : message.content
-
-      const fields: Embed["fields"] = [
-        {
-          name: "------------------------------------------------",
-          value: content,
-        },
-      ]
+        message.content.length > 4096
+          ? "------------------------------------------------\n" +
+            message.content.substring(0, 4044) +
+            "…"
+          : "------------------------------------------------\n" +
+            message.content
 
       const embeds: Embed[] = [
         {
           type: EmbedType.Rich,
           color: message.authorColor,
-          fields: fields,
-          timestamp: isoPostDatetime,
+          description: content,
+          timestamp: formatISO(timestamp),
           author: {
-            name: `${authorTypeIcon} ${message.authorName}    ${postTime}`,
+            name: `${authorTypeIcon} ${message.authorName}`,
             icon_url: message.authorImageUrl,
+          },
+          footer: {
+            text: format(timestamp, "yyyy/MM/dd HH:mm"),
           },
         },
       ]
@@ -453,11 +446,11 @@ export class MessageClient {
   }
 
   /**
-   * Convert message content
+   * Replace message content
    * @param userClient
    * @param content
    */
-  async convertMessageContent(userClient: UserClient, content: string) {
+  async replaceMessageContent(userClient: UserClient, content: string) {
     let newContent = content
 
     // Replace mention
