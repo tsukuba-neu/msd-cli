@@ -102,9 +102,6 @@ export class MessageClient {
               )
             : null
 
-          // TODO: Message type
-          let messageType = 1
-
           let author: User | null = null
           if (message.bot_id) {
             author = await this.userClient.getBot(
@@ -115,8 +112,15 @@ export class MessageClient {
           } else if (message.user) {
             author = await this.userClient.getUser(slackClient, message.user)
           }
+
           if (!author) {
-            throw new Error("Failed to get message author")
+            throw new Error(
+              [
+                "Failed to get message author",
+                `Message Timestamp: ${message.ts}`,
+                `Message Content: ${content}`,
+              ].join("\n")
+            )
           }
 
           newMessages.push({
@@ -126,7 +130,7 @@ export class MessageClient {
             threadId: message.thread_ts || null,
             content: content,
             files: files,
-            type: messageType,
+            type: 1,
             isPinned: isPinned,
             isReplyed: message.thread_ts && !message.replies ? true : false,
             authorId: author.id,
@@ -269,8 +273,15 @@ export class MessageClient {
             timestamp: message.threadId,
           },
         })
+
         if (!threadMessage || !threadMessage.deployId)
-          throw new Error("Failed to get thread message")
+          throw new Error(
+            [
+              "Failed to get thread message",
+              `Message Timestamp: ${message.timestamp}`,
+              `Message Content: ${message.content}`,
+            ].join("\n")
+          )
 
         messageManager = await channelManager.messages.cache
           .get(threadMessage.deployId)
@@ -282,7 +293,16 @@ export class MessageClient {
           embeds: embeds,
         })
       }
-      if (!messageManager) throw new Error("Failed to deploy message")
+
+      if (!messageManager)
+        throw new Error(
+          [
+            "Failed to deploy message",
+            `Message Timestamp: ${message.timestamp}`,
+            `Message Content: ${message.content}`,
+          ].join("\n")
+        )
+
       newMessage.deployId = messageManager.id
       await this.updateMessage(newMessage)
 
