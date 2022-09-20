@@ -2,7 +2,7 @@ import { PrismaClient, Message, User } from "@prisma/client"
 import { access, readFile, constants, readdir } from "node:fs/promises"
 import { statSync } from "node:fs"
 import { join } from "node:path"
-import { format, formatISO, fromUnixTime } from "date-fns"
+import { formatISO, fromUnixTime } from "date-fns"
 import { WebClient as SlackClient } from "@slack/web-api"
 import { FileElement } from "@slack/web-api/dist/response/ChatPostMessageResponse"
 import { ChannelType, EmbedType } from "discord.js"
@@ -225,14 +225,8 @@ export class MessageClient {
     message: Message,
     maxFileSize: 8000000 | 50000000 | 100000000
   ) {
-    // Get post datetime of message
-    const postTime = format(
-      fromUnixTime(parseFloat(message.timestamp)),
-      " HH:mm"
-    )
-    const isoPostDatetime = formatISO(
-      fromUnixTime(parseFloat(message.timestamp))
-    )
+    // Get post timestamp of message
+    const timestamp = formatISO(fromUnixTime(parseFloat(message.timestamp)))
 
     let authorTypeIcon: "🟢" | "🔵" | "🤖" = "🟢"
     if (message.authorType === 2) authorTypeIcon = "🔵"
@@ -258,9 +252,9 @@ export class MessageClient {
           type: EmbedType.Rich,
           color: message.authorColor,
           fields: fields,
-          timestamp: isoPostDatetime,
+          timestamp: timestamp,
           author: {
-            name: `${authorTypeIcon} ${message.authorName}    ${postTime}`,
+            name: `${authorTypeIcon} ${message.authorName}`,
             icon_url: message.authorImageUrl,
           },
         },
