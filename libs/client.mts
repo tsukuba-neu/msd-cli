@@ -2,6 +2,7 @@ import { WebClient as SlackClient } from "@slack/web-api"
 import type { WebClient as SlackClientType } from "@slack/web-api"
 import { Client as DiscordClient, GatewayIntentBits } from "discord.js"
 import type { Guild as DiscordClientType } from "discord.js"
+import { once } from "node:events"
 
 /**
  * Create slack client
@@ -25,8 +26,12 @@ export const createDiscordClient = async (
   })
 
   await client.login(discordBotToken)
-  // FIXME: Processing may not proceed from client create
-  // await new Promise<void>((resolve) => client.on("ready", () => resolve()))
+
+  // client.on("debug", console.log)
+  client.on("error", (error) => {
+    throw new Error(`Client error: ${error}`)
+  })
+  await once(client, "ready")
 
   const guild = client.guilds.cache.get(discordServerId)
   if (!guild) {
