@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/revoltage-inc/msd-cli/compare/v1.1.1...v1.1.2) (2022-09-21)
+
+
+### Bug Fixes
+
+* 77 Todo TreeのFIXMEのタグをFIXにリネーム ([8acef03](https://github.com/revoltage-inc/msd-cli/commit/8acef033f1c9bdc21ad550eb3a409f20264113fa))
+* 77 クライアントの作成処理が止まる問題を修正 ([29e3369](https://github.com/revoltage-inc/msd-cli/commit/29e3369c5f3186556ab886ecef55668f2e592124))
+
 ## [1.1.1](https://github.com/revoltage-inc/msd-cli/compare/v1.1.0...v1.1.1) (2022-09-20)
 
 
