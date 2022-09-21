@@ -420,11 +420,11 @@ export class MessageClient {
         .filter((message) => message.deployId)
         .map(async (message) => {
           if (message.isPinned) {
-            // FIXME: Want to avoid forced type casting
+            // FIX: Want to avoid forced type casting
             await channelManager.messages.unpin(message.deployId as string)
           }
 
-          // FIXME: Want to avoid forced type casting
+          // FIX: Want to avoid forced type casting
           await channelManager.messages.delete(message.deployId as string)
 
           const newMessage = (() => message)()
