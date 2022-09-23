@@ -1,4 +1,4 @@
-import { clearLine, cursorTo } from "readline"
+import { clearLine, cursorTo } from "node:readline"
 import pc from "picocolors"
 
 export class Spinner {
