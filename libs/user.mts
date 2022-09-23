@@ -231,17 +231,17 @@ export class UserClient {
   }
 
   /**
-   * Deploy channel for hosting user image
+   * Deploy channel for hosting user profile image
    */
   async deployUserImageChannel(discordClient: DiscordClient) {
-    // Deploy channel for hosting user image
+    // Deploy channel for hosting user profile image
     const userChannel = await this.channelClient.deployChannel(
       discordClient,
       "msd-user",
       "C0000000000",
       {
         channelType: 2,
-        topic: "channel for hosting user image",
+        topic: "channel for hosting user profile image",
         isArchived: true,
       }
     )
@@ -274,14 +274,16 @@ export class UserClient {
   }
 
   /**
-   * Destroy channel for hosting user image
+   * Destroy channel for hosting user profile image
    */
   async destroyUserImageChannel(discordClient: DiscordClient) {
     const userChannel = await this.channelClient.getChannel("msd-user", 2)
     if (!userChannel || !userChannel.deployId)
-      throw new Error("Failed to get deployed channel for hosting user image")
+      throw new Error(
+        "Failed to get deployed channel for hosting user profile image"
+      )
 
-    // TODO: Destroy all message for channel for hosting user image
+    // TODO: Destroy all message for channel for hosting user profile image
 
     await this.channelClient.destroyChannel(discordClient, userChannel)
   }

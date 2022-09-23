@@ -9,8 +9,8 @@ dotenv.config({ path: "./.env" })
 const spinner = new Spinner()
 
 interface Options {
-  discordBotToken?: string
-  discordServerId?: string
+  discordBotToken: string
+  discordServerId: string
 }
 
 ;(async () => {
@@ -29,14 +29,7 @@ interface Options {
     )
     .parse(process.argv)
 
-  spinner.loading("Check parameter")
-  const options: Options = program.opts()
-  const { discordBotToken, discordServerId } = options
-  if (discordBotToken === undefined || discordServerId === undefined) {
-    spinner.failed(null, "Required parameter is not found")
-    process.exit(1)
-  }
-  spinner.success()
+  const { discordBotToken, discordServerId }: Options = program.opts()
 
   spinner.loading("Create client")
   let messageClient: MessageClient | undefined = undefined

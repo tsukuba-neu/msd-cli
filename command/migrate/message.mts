@@ -14,9 +14,9 @@ dotenv.config({ path: "./.env" })
 const spinner = new Spinner()
 
 interface Options {
-  discordBotToken?: string
-  discordServerId?: string
-  slackBotToken?: string
+  discordBotToken: string
+  discordServerId: string
+  slackBotToken: string
 }
 
 ;(async () => {
@@ -40,18 +40,8 @@ interface Options {
     )
     .parse(process.argv)
 
-  spinner.loading("Check parameter")
-  const options: Options = program.opts()
-  const { discordBotToken, discordServerId, slackBotToken } = options
-  if (
-    discordBotToken === undefined ||
-    discordServerId === undefined ||
-    slackBotToken === undefined
-  ) {
-    spinner.failed(null, "Required parameter is not found")
-    process.exit(0)
-  }
-  spinner.success()
+  const { discordBotToken, discordServerId, slackBotToken }: Options =
+    program.opts()
 
   spinner.loading("Create client")
   let messageClient: MessageClient | undefined = undefined
