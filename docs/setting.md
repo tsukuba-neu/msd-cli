@@ -57,7 +57,7 @@ export DISCORD_SERVER_ID=""
 下記のコマンドで、VoltaでNode.jsとnpmをインストールする  
 
 ```zsh
-volta install node@18.8.0 npm@8.19.0
+volta install node@18.9.0 npm@8.19.1
 
 npm install
 ```

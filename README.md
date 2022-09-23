@@ -16,7 +16,7 @@ MSDは(Migrate from Slack to Discord)の略称
   <img src="./docs/img/example.png" min-width="600" min-height="540">
 </p>
 
-仕組みとしては、SlackのエクスポートデータをDiscordに出力できるデータに変換し、DiscordBot経由でチャンネルの作成とメッセージの出力を行うことで移行を実現します  
+SlackのエクスポートデータをDiscordに出力できるデータに変換し、DiscordBot経由でチャンネルの作成とメッセージの出力を行うことで移行を実現します  
 
 <p align="center">
   <img src="./docs/img/architecture.png" min-width="850" min-height="350">
@@ -41,7 +41,7 @@ npm run init
 npm run migrate:channel
 npm run deploy:channel
 
-# ユーザーの画像をホストするためのチャンネルをデプロイする
+# ユーザーの画像をホストする
 npm run migrate:user
 npm run deploy:user
 
@@ -63,29 +63,23 @@ npm run destroy:channel
 移行完了後はBotは不要になるため、念のため削除します  
 Discordの仕様上、[CDNにアップロードされたファイルを消えない](https://support.discord.com/hc/en-us/community/posts/360061593771-Privacy-for-CDN-attachements)ようなので、ユーザーの画像をホストするためのチャンネル`#msd-user`は移行完了後に任意で削除してください  
 
-## デプロイが失敗した場合は?
+## 既知の問題
 
-デプロイが完了したチャンネル、カテゴリ、メッセージにはそのDBのカラムにDeployIDが設定されています  
-デプロイが失敗した場合、既にDeployIDが設定されている(=デプロイされている)ものは、次回からデプロイ時のデータ取得の非対象になるため、重複せずに再デプロイできるようになっています  
+### [デプロイ速度が遅い](https://github.com/revoltage-inc/msd-cli/issues/37)
 
-しかし、エラーがI/OエラーやDBやAPI関連のエラー以外の場合、  
-そもそもデプロイされたものが正常にDeployIDが設定されているのかどうかも怪しいため、  
-少し手間ではありますが、 一度destroyコマンドで消去して最初から再実行することをお勧めします  
+現在はDBにSQLiteを利用しているため、同時書き込みができない制限があります  
+そのため直列処理でデプロイをしており、デプロイ速度が遅いです  
+DBを変更し、並列処理でデプロイをできるようにしたいと考えています  
 
-それでもエラーが出る場合は、issueで教えてください
+### [Discordの最大ファイルアップロードサイズを超える場合の対応](https://github.com/revoltage-inc/msd-cli/issues/38)
 
-## 主な既知の問題
+[Slackにアップロードできる最大ファイルサイズは最大1GB](https://slack.com/intl/ja-jp/help/articles/201330736-%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%92-Slack-%E3%81%AB%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B)ですが、[Discordにアップロードできる最大ファイルサイズは最大100MB(※サーバーのブースト最大時)](https://support.discord.com/hc/ja/articles/360028038352-%E3%82%B5%E3%83%BC%E3%83%90%E3%83%BC%E3%83%96%E3%83%BC%E3%82%B9%E3%83%88-)です  
 
-### [移行速度の高速化とDBの変更](https://github.com/revoltage-inc/msd-cli/issues/37)
+そのため、Slackのメッセージの添付ファイルのサイズによっては、Discordにアップロードできない可能性があります  
+現在、最大ファイルアップロードサイズを超えるファイルはアップロードをスキップする暫定仕様となっています  
+別ストレージサービスへのアップロードなどのオプション機能は現在ありません  
 
-現在はDBにSQLiteを利用しているため、同時書き込みができない制限で、直列処理でチャンネルにメッセージのデプロイをしているため、移行速度が遅いです  
-同時書き込みができるDBに移行し、並列処理で複数のチャンネルに同時にメッセージのデプロイをできるようにしたいです  
-
-### [Discordの最大アップロードサイズを超えるファイルへの対応](https://github.com/revoltage-inc/msd-cli/issues/38)
-
-Discordのアップロードファイルの制限値がサーバーブーストしても最大100MBなので、  
-現在最大アップロードサイズを超えるファイルはエクスポートデータのファイルURLを添付するだけになっているので、  
-最大アップロードサイズを超えるファイルがある場合は、警告を出力し、可能ならばオプションで別ストレージサービスへアップロードを可能にしたいです  
+より多くの添付ファイルを移行したい場合は、Discordにアップロードできる最大ファイルアップロードサイズを解放するために、[サーバーのブースト](https://support.discord.com/hc/ja/articles/360028038352-%E3%82%B5%E3%83%BC%E3%83%90%E3%83%BC%E3%83%96%E3%83%BC%E3%82%B9%E3%83%88-)を検討してください  
 
 ## License
 
