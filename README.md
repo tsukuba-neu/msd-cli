@@ -31,7 +31,7 @@ SlackのエクスポートデータをDiscordに出力できるデータに変�
 
 ## 使用方法
 
-[初回設定](./docs/setting.md)を完了後、下記のコマンドを実行します  
+[初回設定](./docs/setting.md)を完了後、下記のコマンドを実行することで移行します  
 クライアント作成時に処理が止まる場合があります、その際には止まった箇所のコマンドを再実行してください  
 
 ```zsh
@@ -42,12 +42,12 @@ npm run migrate:channel
 npm run deploy:channel
 npm run migrate:user
 npm run deploy:user
-npm run destroy:user
 npm run migrate:message
 npm run deploy:message
 ```
 
-リセットしたい場合は、下記のコマンドを実行することでリセットできます  
+移行完了後は、`#msd-file`チャンネルは不要になるので削除しても問題ありません  
+移行をリセットしたい場合は、下記のコマンドを実行することでリセットできます  
 
 ```zsh
 npm run destroy

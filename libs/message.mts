@@ -13,7 +13,7 @@ import type {
   Message as MessageManager,
 } from "discord.js"
 import { ChannelClient } from "./channel.mjs"
-import { FileClient } from "./file.mjs"
+import { UserClient } from "./user.mjs"
 import { getDiscordServerMaxFileSize } from "./server.mjs"
 
 interface SlackMessageFile {
@@ -40,11 +40,11 @@ interface File {
 export class MessageClient {
   client: PrismaClient
   channelClient: ChannelClient
-  fileClient: FileClient
+  userClient: UserClient
   constructor(client = new PrismaClient()) {
     this.client = client
     this.channelClient = new ChannelClient(this.client)
-    this.fileClient = new FileClient(this.client)
+    this.userClient = new UserClient(this.client)
   }
 
   /**
@@ -83,10 +83,7 @@ export class MessageClient {
           }
 
           // Replace message content
-          let content = await this.replaceMessageContent(
-            this.fileClient,
-            message.text
-          )
+          let content = await this.replaceMessageContent(message.text)
 
           // Get pinned item
           const pinIds = channel.pins ? channel.pins.split(",") : []
@@ -111,13 +108,13 @@ export class MessageClient {
 
           let author: User | null = null
           if (message.bot_id) {
-            author = await this.fileClient.getBot(
+            author = await this.userClient.getBot(
               slackClient,
               message.bot_id,
               message.app_id
             )
           } else if (message.user) {
-            author = await this.fileClient.getUser(slackClient, message.user)
+            author = await this.userClient.getUser(slackClient, message.user)
           }
 
           if (!author) {
@@ -465,10 +462,9 @@ export class MessageClient {
 
   /**
    * Replace message content
-   * @param fileClient
    * @param content
    */
-  async replaceMessageContent(fileClient: FileClient, content: string) {
+  async replaceMessageContent(content: string) {
     let newContent = content
 
     if (!newContent) return null
@@ -480,7 +476,7 @@ export class MessageClient {
         mention.replace(/<@|>/g, "")
       )
       for (const userId of userIds) {
-        const username = await fileClient.getUsername(userId)
+        const username = await this.userClient.getUsername(userId)
         if (username) {
           newContent = newContent.replaceAll(`<@${userId}>`, `@${username}`)
         } else {

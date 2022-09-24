@@ -2,7 +2,7 @@ import { Command } from "commander"
 import dotenv from "dotenv"
 import { resolve, join } from "node:path"
 import { Spinner } from "../../libs/util/spinner.mjs"
-import { FileClient } from "../../libs/file.mjs"
+import { UserClient } from "../../libs/user.mjs"
 
 const __dirname = new URL(import.meta.url).pathname
 const srcDirPath = resolve(__dirname, "../../../.src/")
@@ -16,9 +16,9 @@ const spinner = new Spinner()
   program.description("Migrate user command").parse(process.argv)
 
   spinner.loading("Create client")
-  let fileClient: FileClient | undefined = undefined
+  let userClient: UserClient | undefined = undefined
   try {
-    fileClient = new FileClient()
+    userClient = new UserClient()
   } catch (error) {
     spinner.failed(null, error)
     process.exit(1)
@@ -27,7 +27,7 @@ const spinner = new Spinner()
 
   spinner.loading("Migrate user")
   try {
-    await fileClient.migrateUser(userFilePath)
+    await userClient.migrateUser(userFilePath)
   } catch (error) {
     spinner.failed(null, error)
     process.exit(1)

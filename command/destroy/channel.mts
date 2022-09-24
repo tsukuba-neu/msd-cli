@@ -56,5 +56,14 @@ interface Options {
   }
   spinner.success()
 
+  spinner.loading("Destroy channel for hosting file")
+  try {
+    await channelClient.destroyFileChannel(discordClient)
+  } catch (error) {
+    spinner.failed(null, error)
+    process.exit(1)
+  }
+  spinner.success()
+
   process.exit(0)
 })()

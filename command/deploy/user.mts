@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import type { Guild as DiscordClient } from "discord.js"
 import { Spinner } from "../../libs/util/spinner.mjs"
 import { createDiscordClient } from "../../libs/client.mjs"
-import { FileClient } from "../../libs/file.mjs"
+import { UserClient } from "../../libs/user.mjs"
 
 dotenv.config({ path: "./.env" })
 const spinner = new Spinner()
@@ -11,13 +11,12 @@ const spinner = new Spinner()
 interface Options {
   discordBotToken: string
   discordServerId: string
-  yes?: true
 }
 
 ;(async () => {
   const program = new Command()
   program
-    .description("Destroy channel for hosting file command")
+    .description("Deploy user image file command")
     .requiredOption(
       "-dt, --discord-bot-token [string]",
       "DiscordBot OAuth Token",
@@ -28,18 +27,15 @@ interface Options {
       "Discord Server ID",
       process.env.DISCORD_SERVER_ID
     )
-    .option("-y, --yes", "Skip Confirm")
     .parse(process.argv)
 
-  const { discordBotToken, discordServerId, yes }: Options = program.opts()
-
-  await spinner.confirm("Destroy channel for hosting file?", yes ? true : false)
+  const { discordBotToken, discordServerId }: Options = program.opts()
 
   spinner.loading("Create client")
-  let fileClient: FileClient | undefined = undefined
+  let userClient: UserClient | undefined = undefined
   let discordClient: DiscordClient | undefined = undefined
   try {
-    fileClient = new FileClient()
+    userClient = new UserClient()
     discordClient = await createDiscordClient(discordBotToken, discordServerId)
   } catch (error) {
     spinner.failed(null, error)
@@ -47,9 +43,9 @@ interface Options {
   }
   spinner.success()
 
-  spinner.loading("Destroy channel for hosting file")
+  spinner.loading("Deploy user image file")
   try {
-    await fileClient.destroyFileChannel(discordClient)
+    await userClient.deployUserImageFile(discordClient)
   } catch (error) {
     spinner.failed(null, error)
     process.exit(1)

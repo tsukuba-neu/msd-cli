@@ -73,7 +73,7 @@ Discordの仕様上、添付ファイルと埋め込みを同じメッセージ�
 SlackはCDNにアップロードされたファイルを消せるため、何らかの操作でSlackのファイルURLが参照できなくなった場合のリスクヘッジとして、  
 ファイルはSlackのファイルURLを参照させるのではなく、Discordにファイルをデプロイし、ホスティングさせるようにしています  
 
-Discordの仕様上、[CDNにアップロードされたファイルは消えない](https://support.discord.com/hc/en-us/community/posts/360061593771-Privacy-for-CDN-attachements))ため、ファイルのデプロイ完了後は`#msd-file`チャンネルは不要になるので削除します  
+Discordの仕様上、[CDNにアップロードされたファイルは消えない](https://support.discord.com/hc/en-us/community/posts/360061593771-Privacy-for-CDN-attachements))ため、ファイルのデプロイ完了後は`#msd-file`チャンネルは不要になるので削除しても問題ありません  
 
 ## 最大ファイルアップロードサイズを超えるファイル
 

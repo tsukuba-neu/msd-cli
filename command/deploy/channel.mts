@@ -52,5 +52,14 @@ interface Options {
   }
   spinner.success()
 
+  spinner.loading("Deploy channel for hosting file")
+  try {
+    await channelClient.deployFileChannel(discordClient)
+  } catch (error) {
+    spinner.failed(null, error)
+    process.exit(1)
+  }
+  spinner.success()
+
   process.exit(0)
 })()

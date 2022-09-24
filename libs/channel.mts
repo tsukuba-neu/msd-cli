@@ -157,6 +157,28 @@ export class ChannelClient {
   }
 
   /**
+   * Deploy channel for hosting file
+   * @param discordClient
+   */
+  async deployFileChannel(discordClient: DiscordClient) {
+    return await this.deployChannel(discordClient, "msd-file", "C0000000000", {
+      channelType: 2,
+      topic: "channel for hosting file",
+      isArchived: true,
+    })
+  }
+
+  /**
+   * Destroy channel for hosting file
+   */
+  async destroyFileChannel(discordClient: DiscordClient) {
+    const fileChannel = await this.getChannel("msd-file", 2)
+    if (!fileChannel || !fileChannel.deployId)
+      throw new Error("Failed to get deployed channel for hosting file")
+    await this.destroyChannel(discordClient, fileChannel)
+  }
+
+  /**
    * Deploy all channel
    */
   async deployAllChannel(discordClient: DiscordClient) {
@@ -353,12 +375,4 @@ export class ChannelClient {
     })
     await this.client.$transaction([...query])
   }
-
-  // async connect(): Promise<void> {
-  //   await this.client.$connect()
-  // }
-
-  // async disconnect(): Promise<void> {
-  //   await this.client.$disconnect()
-  // }
 }
