@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/revoltage-inc/msd-cli/compare/v1.2.1...v1.2.2) (2022-09-24)
+
+
+### Bug Fixes
+
+* 92 Prettierでフォーマット ([a795cf4](https://github.com/revoltage-inc/msd-cli/commit/a795cf40cd1e21e28d84f59e4669ea850c57224f))
+
 ## [1.2.1](https://github.com/revoltage-inc/msd-cli/compare/v1.2.0...v1.2.1) (2022-09-24)
 
 
