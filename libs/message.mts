@@ -40,6 +40,11 @@ interface File {
   mimetype: string
 }
 
+interface Url {
+  name: string
+  url: string
+}
+
 export class MessageClient {
   client: PrismaClient
   channelClient: ChannelClient
@@ -86,7 +91,9 @@ export class MessageClient {
           }
 
           // Replace message content
-          let content = await this.replaceMessageContent(message.text)
+          const { content, urls } = await this.replaceMessageContent(
+            message.text
+          )
 
           // Get pinned item
           const pinIds = channel.pins ? channel.pins.split(",") : []
@@ -145,6 +152,7 @@ export class MessageClient {
             threadId: message.thread_ts || null,
             content: content,
             files: files?.length ? JSON.stringify(files) : null,
+            urls: urls?.length ? JSON.stringify(urls) : null,
             type: 1,
             isPinned: isPinned,
             isReplyed: message.thread_ts && !message.replies ? true : false,
@@ -265,12 +273,9 @@ export class MessageClient {
         ? newFiles
             .filter((file) => file.mimetype.startsWith("image/"))
             .map((file) => ({
-              title: file.name,
+              title: `IMAGE: ${file.name}`,
               image: {
                 url: file.url,
-              },
-              footer: {
-                text: format(timestamp, "yyyy/MM/dd HH:mm"),
               },
             }))
         : []
@@ -279,12 +284,16 @@ export class MessageClient {
         ? newFiles
             .filter((file) => !file.mimetype.startsWith("image/"))
             .map((file) => ({
-              title: file.name,
-              description: file.url,
-              footer: {
-                text: format(timestamp, "yyyy/MM/dd HH:mm"),
-              },
+              title: `FILE: ${file.name}`,
+              url: file.url,
             }))
+        : []
+
+      const urlEmbeds: Embed[] = message.urls
+        ? (JSON.parse(message.urls) as Url[]).map((url) => ({
+            title: `URL: ${url.name}`,
+            url: url.url,
+          }))
         : []
 
       const embeds: Embed[] = [
@@ -303,6 +312,7 @@ export class MessageClient {
         },
         ...imageEmbeds,
         ...fileEmbeds,
+        ...urlEmbeds,
       ]
 
       // Deploy message
@@ -507,14 +517,16 @@ export class MessageClient {
   async replaceMessageContent(content: string) {
     let newContent = content
 
-    if (!newContent) return null
+    if (!newContent)
+      return {
+        content: null,
+        urls: null,
+      }
 
     // Replace mention
-    const matchMention = newContent.match(/<@U[A-Z0-9]{10}>/g)
-    if (matchMention?.length) {
-      const userIds = matchMention.map((mention) =>
-        mention.replace(/<@|>/g, "")
-      )
+    const mentions = newContent.match(/<@U[A-Z0-9]{10}>/g)
+    if (mentions?.length) {
+      const userIds = mentions.map((mention) => mention.replace(/<@|>/g, ""))
       for (const userId of userIds) {
         const username = await this.userClient.getUsername(userId)
         if (username) {
@@ -545,11 +557,32 @@ export class MessageClient {
     if (/&gt; .*/.test(newContent))
       newContent = newContent.replaceAll(/&gt; /g, "> ")
 
-    // Replace URL
-    if (/<http|https:\/\/.*\|.*>/.test(newContent))
-      newContent = content.replaceAll(/<|\|.*>/g, "")
+    // Replace String with url
+    const newUrls: Url[] = []
+    const stringWithUrls = newContent.match(/<http[s]?:\/\/.*\|.*>/g)
+    if (stringWithUrls?.length) {
+      for (const stringWithUrl of stringWithUrls) {
+        const name = stringWithUrl
+          .match(/\|.*>$/g)
+          ?.shift()
+          ?.slice(1, -1)
+        const url = stringWithUrl
+          .match(/^<.*\|/g)
+          ?.shift()
+          ?.slice(1, -1)
 
-    return newContent
+        if (!name || !url)
+          throw new Error(`Failed to slice string with url of ${stringWithUrl}`)
+
+        newContent = newContent.replaceAll(stringWithUrl, name)
+        newUrls.push({ name: name, url: url })
+      }
+    }
+
+    return {
+      content: newContent,
+      urls: newUrls,
+    }
   }
 
   /**
@@ -568,6 +601,7 @@ export class MessageClient {
           threadId: message.threadId,
           content: message.content,
           files: message.files,
+          urls: message.urls,
           type: message.type,
           isPinned: message.isPinned,
           isReplyed: message.isReplyed,
@@ -584,6 +618,7 @@ export class MessageClient {
           threadId: message.threadId,
           content: message.content,
           files: message.files,
+          urls: message.urls,
           type: message.type,
           isPinned: message.isPinned,
           isReplyed: message.isReplyed,
