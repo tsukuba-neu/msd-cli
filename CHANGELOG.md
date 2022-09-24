@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.1](https://github.com/revoltage-inc/msd-cli/compare/v1.2.0...v1.2.1) (2022-09-24)
+
+
+### Bug Fixes
+
+* 83 fileのライブラリの処理をuserとchannelのライブラリに分離 ([adeb4a2](https://github.com/revoltage-inc/msd-cli/commit/adeb4a2d932b6088b7bd7fc88e306cf7c8bfad0e))
+* 83 node修飾子をつけるように修正 ([23dd91a](https://github.com/revoltage-inc/msd-cli/commit/23dd91a0142443c9bef2e37f836c43e571fe4ae3))
+* 83 クライアント作成時にリトライ処理を追加 ([f642f1b](https://github.com/revoltage-inc/msd-cli/commit/f642f1b785e156eac1834ab7bb2704d76a810461))
+* 83 パッケージを更新 ([a1bf3d5](https://github.com/revoltage-inc/msd-cli/commit/a1bf3d59d5d61aa29fd72ec5f40cf541e9e49c29))
+* 83 メッセージの添付ファイルをmsd-fileチャンネルでホスティングするように修正 ([3cfa365](https://github.com/revoltage-inc/msd-cli/commit/3cfa3659e24fc90922124d7f636ccda2c5652bbf))
+* 83 ユーザーの画像をデプロイするコマンドを、ファイルをデプロイするコマンドに拡大修正 ([e1b0010](https://github.com/revoltage-inc/msd-cli/commit/e1b001066f51af4b1498f740f8074a7f87f219f8))
+* 83 リンク付き文字列を別のEmbedに表示するように修正 ([60ce48a](https://github.com/revoltage-inc/msd-cli/commit/60ce48a0ed356f2aa4aa652965c04ed619ee77ae))
+* 83 不要なファイルデプロイ関数を削除 ([53738c5](https://github.com/revoltage-inc/msd-cli/commit/53738c52c3dc2178bd4e9fd99e66dcd5221ed306))
+* 83 切り取り線を廃止 ([a2e3b65](https://github.com/revoltage-inc/msd-cli/commit/a2e3b65538d3205696329d3d5cb6820bbc6991da))
+* 83 添付ファイルがない場合にnullが入る問題を修正 ([c4b6c13](https://github.com/revoltage-inc/msd-cli/commit/c4b6c13f6b10280880f8d279584ca6bb39664f37))
+* 83 確認処理を修正 ([53f4782](https://github.com/revoltage-inc/msd-cli/commit/53f4782e96eb9eeb8b8593a74b92e3de2de1f0f1))
+
 ## [1.1.3](https://github.com/revoltage-inc/msd-cli/compare/v1.1.2...v1.1.3) (2022-09-23)
 
 
