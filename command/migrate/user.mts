@@ -1,21 +1,21 @@
-import { Command } from "commander"
-import dotenv from "dotenv"
-import { resolve, join } from "node:path"
-import { Spinner } from "../../libs/util/spinner.mjs"
-import { UserClient } from "../../libs/user.mjs"
+import { Command } from 'commander'
+import dotenv from 'dotenv'
+import { resolve, join } from 'node:path'
+import { Spinner } from '../../libs/util/spinner.mjs'
+import { UserClient } from '../../libs/user.mjs'
 
 const __dirname = new URL(import.meta.url).pathname
-const srcDirPath = resolve(__dirname, "../../../.src/")
-const userFilePath = join(srcDirPath, "users.json")
+const srcDirPath = resolve(__dirname, '../../../.src/')
+const userFilePath = join(srcDirPath, 'users.json')
 
-dotenv.config({ path: "./.env" })
+dotenv.config({ path: './.env' })
 const spinner = new Spinner()
 
 ;(async () => {
   const program = new Command()
-  program.description("Migrate user command").parse(process.argv)
+  program.description('Migrate user command').parse(process.argv)
 
-  spinner.loading("Create client")
+  spinner.loading('Create client')
   let userClient: UserClient | undefined = undefined
   try {
     userClient = new UserClient()
@@ -25,7 +25,7 @@ const spinner = new Spinner()
   }
   spinner.success()
 
-  spinner.loading("Migrate user")
+  spinner.loading('Migrate user')
   try {
     await userClient.migrateUser(userFilePath)
   } catch (error) {

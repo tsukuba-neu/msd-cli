@@ -1,9 +1,9 @@
-import { WebClient as SlackClient } from "@slack/web-api"
-import type { WebClient as SlackClientType } from "@slack/web-api"
-import { Client as DiscordClient, GatewayIntentBits } from "discord.js"
-import type { Guild as DiscordClientType } from "discord.js"
-import { once } from "node:events"
-import { setTimeout } from "node:timers/promises"
+import { WebClient as SlackClient } from '@slack/web-api'
+import type { WebClient as SlackClientType } from '@slack/web-api'
+import { Client as DiscordClient, GatewayIntentBits } from 'discord.js'
+import type { Guild as DiscordClientType } from 'discord.js'
+import { once } from 'node:events'
+import { setTimeout } from 'node:timers/promises'
 
 /**
  * Create slack client
@@ -29,7 +29,7 @@ export const createDiscordClient = async (
   await client.login(discordBotToken)
 
   // client.on("debug", console.log)
-  client.on("error", (error) => {
+  client.on('error', (error) => {
     throw new Error(`Client error: ${error}`)
   })
 
@@ -42,11 +42,11 @@ export const createDiscordClient = async (
     if (client.isReady()) break
     try {
       if (await setTimeout(1000, true, { signal })) controller.abort()
-      await once(client, "ready", { signal: signal })
+      await once(client, 'ready', { signal: signal })
       controller.abort()
     } catch {
       if (retryCount > 5) {
-        throw new Error("Client ready timeout")
+        throw new Error('Client ready timeout')
       }
     }
     retryCount++
@@ -54,7 +54,7 @@ export const createDiscordClient = async (
 
   const guild = client.guilds.cache.get(discordServerId)
   if (!guild) {
-    throw new Error("Guild is not found")
+    throw new Error('Guild is not found')
   }
   return guild
 }

@@ -1,4 +1,4 @@
-import type { Guild as DiscordClient } from "discord.js"
+import type { Guild as DiscordClient } from 'discord.js'
 
 /**
  * Get max file size according to discord server boost level

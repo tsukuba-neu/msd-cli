@@ -1,10 +1,10 @@
-import { PrismaClient, User } from "@prisma/client"
-import { access, readFile, constants } from "node:fs/promises"
-import { v4 as uuidv4 } from "uuid"
-import { WebClient as SlackClient } from "@slack/web-api"
-import { ChannelClient } from "./channel.mjs"
-import { ChannelType } from "discord.js"
-import type { Guild as DiscordClient } from "discord.js"
+import { PrismaClient, User } from '@prisma/client'
+import { access, readFile, constants } from 'node:fs/promises'
+import { v4 as uuidv4 } from 'uuid'
+import { WebClient as SlackClient } from '@slack/web-api'
+import { ChannelClient } from './channel.mjs'
+import { ChannelType } from 'discord.js'
+import type { Guild as DiscordClient } from 'discord.js'
 
 interface SlackUserFile {
   id?: string
@@ -45,7 +45,7 @@ export class UserClient {
         user.profile.display_name === undefined ||
         user.profile.image_512 === undefined
       )
-        throw new Error("User is missing required parameter")
+        throw new Error('User is missing required parameter')
 
       return {
         id: user.id,
@@ -59,7 +59,7 @@ export class UserClient {
           : user.deleted
           ? 2 // Cancel user
           : 1, // Active user
-        color: user.color ? parseInt(user.color, 16) : parseInt("808080", 16),
+        color: user.color ? parseInt(user.color, 16) : parseInt('808080', 16),
         email: user.profile.email || null,
         imageUrl: user.profile.image_512,
         isDeleted: user.deleted,
@@ -76,19 +76,13 @@ export class UserClient {
    */
   async deployAllUserImageFile(discordClient: DiscordClient) {
     // Get file channel manager
-    const fileChannel = await this.channelClient.getChannel("msd-file", 2)
-    if (!fileChannel) throw new Error("Failed to get deployed file channel")
-    if (!fileChannel.deployId)
-      throw new Error(`Failed to get deployed file channel id`)
+    const fileChannel = await this.channelClient.getChannel('msd-file', 2)
+    if (!fileChannel) throw new Error('Failed to get deployed file channel')
+    if (!fileChannel.deployId) throw new Error(`Failed to get deployed file channel id`)
 
-    const fileChannelManager = discordClient.channels.cache.get(
-      fileChannel.deployId
-    )
-    if (
-      fileChannelManager === undefined ||
-      fileChannelManager.type !== ChannelType.GuildText
-    )
-      throw new Error("Failed to get file channel manager")
+    const fileChannelManager = discordClient.channels.cache.get(fileChannel.deployId)
+    if (fileChannelManager === undefined || fileChannelManager.type !== ChannelType.GuildText)
+      throw new Error('Failed to get file channel manager')
 
     const users = await this.client.user.findMany()
     const newUsers: User[] = []
@@ -117,7 +111,7 @@ export class UserClient {
         id: userId,
       },
       orderBy: {
-        updatedAt: "desc",
+        updatedAt: 'desc',
       },
     })
     if (user) return user
@@ -142,9 +136,7 @@ export class UserClient {
         ? result.user.profile.real_name
         : result.user.profile.display_name,
       type: result.user.deleted ? 2 : 1,
-      color: result.user.color
-        ? parseInt(result.user.color, 16)
-        : parseInt("808080", 16),
+      color: result.user.color ? parseInt(result.user.color, 16) : parseInt('808080', 16),
       email: result.user.profile.email || null,
       imageUrl: result.user?.profile.image_512,
       isDeleted: result.user?.deleted,
@@ -193,7 +185,7 @@ export class UserClient {
         botId: botId,
         name: result.bot.name,
         type: 3,
-        color: parseInt("808080", 16),
+        color: parseInt('808080', 16),
         email: null,
         imageUrl: result.bot.icons.image_72,
         isDeleted: result.bot.deleted,
@@ -223,7 +215,7 @@ export class UserClient {
    */
   async getSlackUserFile(userFilePath: string) {
     await access(userFilePath, constants.R_OK)
-    return JSON.parse(await readFile(userFilePath, "utf8")) as SlackUserFile[]
+    return JSON.parse(await readFile(userFilePath, 'utf8')) as SlackUserFile[]
   }
 
   /**
