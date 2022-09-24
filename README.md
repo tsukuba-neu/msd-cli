@@ -64,7 +64,7 @@ npm run destroy:channel
 そのため直列処理でデプロイをしており、デプロイ速度が遅いです  
 DBを変更し、並列処理でデプロイをできるようにしたいと考えています  
 
-### [Discordの最大ファイルアップロードサイズを超える場合の対応](https://github.com/revoltage-inc/msd-cli/issues/38)
+### [最大ファイルアップロードサイズを超えるファイル](https://github.com/revoltage-inc/msd-cli/issues/38)
 
 [Slackにアップロードできる最大ファイルサイズは最大1GB](https://slack.com/intl/ja-jp/help/articles/201330736-%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%92-Slack-%E3%81%AB%E8%BF%BD%E5%8A%A0%E3%81%99%E3%82%8B)ですが、[Discordにアップロードできる最大ファイルサイズは最大100MB(※サーバーのブースト最大時)](https://support.discord.com/hc/ja/articles/360028038352-%E3%82%B5%E3%83%BC%E3%83%90%E3%83%BC%E3%83%96%E3%83%BC%E3%82%B9%E3%83%88-)です  
 

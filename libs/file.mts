@@ -1,11 +1,12 @@
 import { PrismaClient, User } from "@prisma/client"
 import { access, readFile, constants } from "node:fs/promises"
 import { v4 as uuidv4 } from "uuid"
+import { ChannelType } from "discord.js"
 import type { Guild as DiscordClient } from "discord.js"
 import { WebClient as SlackClient } from "@slack/web-api"
 import { ChannelClient } from "./channel.mjs"
 
-interface SlackUserChannelFile {
+interface SlackUserFile {
   id?: string
   deleted?: boolean
   color?: string
@@ -19,7 +20,7 @@ interface SlackUserChannelFile {
   }
 }
 
-export class UserClient {
+export class FileClient {
   client: PrismaClient
   channelClient: ChannelClient
   constructor(client = new PrismaClient()) {
@@ -188,9 +189,7 @@ export class UserClient {
    */
   async getSlackUserFile(userFilePath: string) {
     await access(userFilePath, constants.R_OK)
-    return JSON.parse(
-      await readFile(userFilePath, "utf8")
-    ) as SlackUserChannelFile[]
+    return JSON.parse(await readFile(userFilePath, "utf8")) as SlackUserFile[]
   }
 
   /**
@@ -231,60 +230,63 @@ export class UserClient {
   }
 
   /**
-   * Deploy channel for hosting user profile image
+   * Deploy channel for hosting file
+   * @param discordClient
    */
-  async deployUserImageChannel(discordClient: DiscordClient) {
-    // Deploy channel for hosting user profile image
-    const userChannel = await this.channelClient.deployChannel(
+  async deployFileChannel(discordClient: DiscordClient) {
+    return await this.channelClient.deployChannel(
       discordClient,
-      "msd-user",
+      "msd-file",
       "C0000000000",
       {
         channelType: 2,
-        topic: "channel for hosting user profile image",
+        topic: "channel for hosting file",
         isArchived: true,
       }
     )
-
-    // Get all user data
-    const users = await this.client.user.findMany()
-
-    // Deploy all user image
-    const newUsers: User[] = []
-    for (const user of users) {
-      const message = await userChannel.send({
-        content: user.name,
-        files: [user.imageUrl],
-      })
-      newUsers.push({
-        id: user.id,
-        appId: user.appId,
-        botId: user.botId,
-        type: user.type,
-        color: user.color,
-        name: user.name,
-        email: user.email,
-        imageUrl: message.attachments.map((file) => file.url)[0],
-        isDeleted: user.isDeleted,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-    }
-    await this.updateManyUser(newUsers)
   }
 
   /**
-   * Destroy channel for hosting user profile image
+   * Destroy channel for hosting file
    */
-  async destroyUserImageChannel(discordClient: DiscordClient) {
-    const userChannel = await this.channelClient.getChannel("msd-user", 2)
-    if (!userChannel || !userChannel.deployId)
-      throw new Error(
-        "Failed to get deployed channel for hosting user profile image"
-      )
+  async destroyFileChannel(discordClient: DiscordClient) {
+    const fileChannel = await this.channelClient.getChannel("msd-file", 2)
+    if (!fileChannel || !fileChannel.deployId)
+      throw new Error("Failed to get deployed channel for hosting file")
+    await this.channelClient.destroyChannel(discordClient, fileChannel)
+  }
 
-    // TODO: Destroy all message for channel for hosting user profile image
+  /**
+   * Deploy user image file
+   * @param discordClient
+   */
+  async deployUserImageFile(discordClient: DiscordClient) {
+    const fileChannel = await this.channelClient.getChannel("msd-file", 2)
+    if (!fileChannel) throw new Error("Failed to get deployed file channel")
+    if (!fileChannel.deployId)
+      throw new Error(`Failed to get deployed file channel id`)
 
-    await this.channelClient.destroyChannel(discordClient, userChannel)
+    const channelManager = discordClient.channels.cache.get(
+      fileChannel.deployId
+    )
+    if (
+      channelManager === undefined ||
+      channelManager.type !== ChannelType.GuildText
+    )
+      throw new Error("Failed to get file channel manager")
+
+    const users = await this.client.user.findMany()
+    const newUsers: User[] = []
+    for (const user of users) {
+      const message = await channelManager.send({
+        content: user.name,
+        files: [user.imageUrl],
+      })
+      const newUser = (() => user)()
+      newUser.imageUrl = message.attachments.map((file) => file.url)[0]
+      newUser.updatedAt = new Date()
+      newUsers.push(newUser)
+    }
+    await this.updateManyUser(newUsers)
   }
 }

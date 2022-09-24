@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import type { Guild as DiscordClient } from "discord.js"
 import { Spinner } from "../../libs/util/spinner.mjs"
 import { createDiscordClient } from "../../libs/client.mjs"
-import { UserClient } from "../../libs/user.mjs"
+import { FileClient } from "../../libs/file.mjs"
 
 dotenv.config({ path: "./.env" })
 const spinner = new Spinner()
@@ -16,7 +16,7 @@ interface Options {
 ;(async () => {
   const program = new Command()
   program
-    .description("Deploy channel for hosting user profile image command")
+    .description("Deploy channel for hosting file command")
     .requiredOption(
       "-dt, --discord-bot-token [string]",
       "DiscordBot OAuth Token",
@@ -32,10 +32,10 @@ interface Options {
   const { discordBotToken, discordServerId }: Options = program.opts()
 
   spinner.loading("Create client")
-  let userClient: UserClient | undefined = undefined
+  let fileClient: FileClient | undefined = undefined
   let discordClient: DiscordClient | undefined = undefined
   try {
-    userClient = new UserClient()
+    fileClient = new FileClient()
     discordClient = await createDiscordClient(discordBotToken, discordServerId)
   } catch (error) {
     spinner.failed(null, error)
@@ -43,9 +43,18 @@ interface Options {
   }
   spinner.success()
 
-  spinner.loading("Deploy channel for hosting user profile image")
+  spinner.loading("Deploy channel for hosting file")
   try {
-    await userClient.deployUserImageChannel(discordClient)
+    await fileClient.deployFileChannel(discordClient)
+  } catch (error) {
+    spinner.failed(null, error)
+    process.exit(1)
+  }
+  spinner.success()
+
+  spinner.loading("Deploy user image file")
+  try {
+    await fileClient.deployUserImageFile(discordClient)
   } catch (error) {
     spinner.failed(null, error)
     process.exit(1)

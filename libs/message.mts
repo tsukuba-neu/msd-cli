@@ -13,7 +13,7 @@ import type {
   Message as MessageManager,
 } from "discord.js"
 import { ChannelClient } from "./channel.mjs"
-import { UserClient } from "./user.mjs"
+import { FileClient } from "./file.mjs"
 import { getDiscordServerMaxFileSize } from "./server.mjs"
 
 interface SlackMessageFile {
@@ -40,11 +40,11 @@ interface File {
 export class MessageClient {
   client: PrismaClient
   channelClient: ChannelClient
-  userClient: UserClient
+  fileClient: FileClient
   constructor(client = new PrismaClient()) {
     this.client = client
     this.channelClient = new ChannelClient(this.client)
-    this.userClient = new UserClient(this.client)
+    this.fileClient = new FileClient(this.client)
   }
 
   /**
@@ -84,7 +84,7 @@ export class MessageClient {
 
           // Replace message content
           let content = await this.replaceMessageContent(
-            this.userClient,
+            this.fileClient,
             message.text
           )
 
@@ -111,13 +111,13 @@ export class MessageClient {
 
           let author: User | null = null
           if (message.bot_id) {
-            author = await this.userClient.getBot(
+            author = await this.fileClient.getBot(
               slackClient,
               message.bot_id,
               message.app_id
             )
           } else if (message.user) {
-            author = await this.userClient.getUser(slackClient, message.user)
+            author = await this.fileClient.getUser(slackClient, message.user)
           }
 
           if (!author) {
@@ -204,7 +204,7 @@ export class MessageClient {
     const channels = await this.channelClient.getAllChannel()
     for (const channel of channels) {
       if (!channel.deployId)
-        throw new Error(`Failed to deployed channel id of ${channel.name}`)
+        throw new Error(`Failed to get deployed channel id of ${channel.name}`)
 
       const channelManager = discordClient.channels.cache.get(channel.deployId)
       if (
@@ -465,10 +465,10 @@ export class MessageClient {
 
   /**
    * Replace message content
-   * @param userClient
+   * @param fileClient
    * @param content
    */
-  async replaceMessageContent(userClient: UserClient, content: string) {
+  async replaceMessageContent(fileClient: FileClient, content: string) {
     let newContent = content
 
     if (!newContent) return null
@@ -480,7 +480,7 @@ export class MessageClient {
         mention.replace(/<@|>/g, "")
       )
       for (const userId of userIds) {
-        const username = await userClient.getUsername(userId)
+        const username = await fileClient.getUsername(userId)
         if (username) {
           newContent = newContent.replaceAll(`<@${userId}>`, `@${username}`)
         } else {
