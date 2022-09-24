@@ -1,8 +1,8 @@
-import { PrismaClient, Channel } from "@prisma/client"
-import { access, readFile, constants } from "node:fs/promises"
-import { ChannelType, DiscordAPIError } from "discord.js"
-import type { Guild as DiscordClient } from "discord.js"
-import { CategoryClient } from "./category.mjs"
+import { PrismaClient, Channel } from '@prisma/client'
+import { access, readFile, constants } from 'node:fs/promises'
+import { ChannelType, DiscordAPIError } from 'discord.js'
+import type { Guild as DiscordClient } from 'discord.js'
+import { CategoryClient } from './category.mjs'
 
 interface SlackChannelFile {
   id?: string
@@ -41,7 +41,7 @@ export class ChannelClient {
         channel.topic === undefined ||
         channel.is_archived === undefined
       )
-        throw new Error("Channel is missing a required parameter")
+        throw new Error('Channel is missing a required parameter')
 
       return {
         id: channel.id,
@@ -51,7 +51,7 @@ export class ChannelClient {
         type: 1,
         topic: channel.topic.value,
         isArchived: channel.is_archived,
-        pins: channel.pins?.map((pin) => pin.id).join(",") || null,
+        pins: channel.pins?.map((pin) => pin.id).join(',') || null,
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -60,16 +60,16 @@ export class ChannelClient {
     // Create init category data
     await this.categoryClient.updateManyCategory([
       {
-        id: "DEFAULT_CATEGORY",
+        id: 'DEFAULT_CATEGORY',
         deployId: null,
-        name: "CHANNEL",
+        name: 'CHANNEL',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        id: "ARCHIVE_CATEGORY",
+        id: 'ARCHIVE_CATEGORY',
         deployId: null,
-        name: "ARCHIVE",
+        name: 'ARCHIVE',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -96,10 +96,9 @@ export class ChannelClient {
     } = { channelType: 1, isArchived: false }
   ) {
     const category = option.isArchived
-      ? await this.categoryClient.getCategory("ARCHIVE_CATEGORY", true)
-      : await this.categoryClient.getCategory("DEFAULT_CATEGORY", true)
-    if (!category?.deployId)
-      throw new Error("Failed to get deployed init category")
+      ? await this.categoryClient.getCategory('ARCHIVE_CATEGORY', true)
+      : await this.categoryClient.getCategory('DEFAULT_CATEGORY', true)
+    if (!category?.deployId) throw new Error('Failed to get deployed init category')
 
     const channelManager = await discordClient.channels.create({
       name: channelName,
@@ -161,9 +160,9 @@ export class ChannelClient {
    * @param discordClient
    */
   async deployFileChannel(discordClient: DiscordClient) {
-    return await this.deployChannel(discordClient, "msd-file", "C0000000000", {
+    return await this.deployChannel(discordClient, 'msd-file', 'C0000000000', {
       channelType: 2,
-      topic: "channel for hosting file",
+      topic: 'channel for hosting file',
       isArchived: true,
     })
   }
@@ -172,7 +171,7 @@ export class ChannelClient {
    * Destroy channel for hosting file
    */
   async destroyFileChannel(discordClient: DiscordClient) {
-    const fileChannel = await this.getChannel("msd-file", 2)
+    const fileChannel = await this.getChannel('msd-file', 2)
 
     // Skip if already destroyed channel for hosting file
     if (!fileChannel) return
@@ -186,16 +185,10 @@ export class ChannelClient {
   async deployAllChannel(discordClient: DiscordClient) {
     const channels = await this.getAllChannel()
     await this.categoryClient.deployAllCategory(discordClient)
-    const defaultCategory = await this.categoryClient.getCategory(
-      "DEFAULT_CATEGORY",
-      true
-    )
-    const archiveCategory = await this.categoryClient.getCategory(
-      "ARCHIVE_CATEGORY",
-      true
-    )
+    const defaultCategory = await this.categoryClient.getCategory('DEFAULT_CATEGORY', true)
+    const archiveCategory = await this.categoryClient.getCategory('ARCHIVE_CATEGORY', true)
     if (!defaultCategory?.deployId || !archiveCategory?.deployId)
-      throw new Error("Failed to deployed init category")
+      throw new Error('Failed to deployed init category')
 
     const newChannels: Channel[] = await Promise.all(
       channels.map(async (channel) => {
@@ -236,8 +229,7 @@ export class ChannelClient {
     const newChannels = await Promise.all(
       channels.map(async (channel) => {
         try {
-          if (channel.deployId)
-            await discordClient.channels.delete(channel.deployId)
+          if (channel.deployId) await discordClient.channels.delete(channel.deployId)
         } catch (error) {
           if (error instanceof DiscordAPIError && error.code == 10003) {
             // Do not throw error if channel to be deleted does not exist
@@ -274,9 +266,7 @@ export class ChannelClient {
    */
   async getSlackChannelFile(channelFilePath: string) {
     await access(channelFilePath, constants.R_OK)
-    return JSON.parse(
-      await readFile(channelFilePath, "utf8")
-    ) as SlackChannelFile[]
+    return JSON.parse(await readFile(channelFilePath, 'utf8')) as SlackChannelFile[]
   }
 
   /**
@@ -292,7 +282,7 @@ export class ChannelClient {
       },
       orderBy: [
         {
-          updatedAt: "desc",
+          updatedAt: 'desc',
         },
       ],
     })

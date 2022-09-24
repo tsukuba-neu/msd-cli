@@ -1,7 +1,7 @@
-import { ChannelType, DiscordAPIError } from "discord.js"
-import type { Guild as DiscordClient } from "discord.js"
-import { PrismaClient } from "@prisma/client"
-import type { Category } from "@prisma/client"
+import { ChannelType, DiscordAPIError } from 'discord.js'
+import type { Guild as DiscordClient } from 'discord.js'
+import { PrismaClient } from '@prisma/client'
+import type { Category } from '@prisma/client'
 
 export class CategoryClient {
   client: PrismaClient
@@ -47,8 +47,7 @@ export class CategoryClient {
     const newCategories = await Promise.all(
       categories.map(async (category) => {
         try {
-          if (!category.deployId)
-            throw new Error("Failed to get is deployed category id")
+          if (!category.deployId) throw new Error('Failed to get is deployed category id')
           await discordClient.channels.delete(category.deployId)
         } catch (error) {
           if (error instanceof DiscordAPIError && error.code == 10003) {
@@ -113,7 +112,7 @@ export class CategoryClient {
       },
       orderBy: [
         {
-          updatedAt: "desc",
+          updatedAt: 'desc',
         },
       ],
     })
@@ -130,7 +129,7 @@ export class CategoryClient {
       },
       orderBy: [
         {
-          updatedAt: "desc",
+          updatedAt: 'desc',
         },
       ],
     })

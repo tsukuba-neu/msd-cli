@@ -1,25 +1,25 @@
-import { PrismaClient, Message, User } from "@prisma/client"
-import { access, readFile, constants, readdir } from "node:fs/promises"
-import { statSync } from "node:fs"
-import { join } from "node:path"
-import { parse as urlParse } from "node:url"
-import { format, formatISO, fromUnixTime } from "date-fns"
-import { WebClient as SlackClient } from "@slack/web-api"
-import { FileElement } from "@slack/web-api/dist/response/ChatPostMessageResponse"
-import { ChannelType, EmbedType } from "discord.js"
+import { PrismaClient, Message, User } from '@prisma/client'
+import { access, readFile, constants, readdir } from 'node:fs/promises'
+import { statSync } from 'node:fs'
+import { join } from 'node:path'
+import { parse as urlParse } from 'node:url'
+import { format, formatISO, fromUnixTime } from 'date-fns'
+import { WebClient as SlackClient } from '@slack/web-api'
+import { FileElement } from '@slack/web-api/dist/response/ChatPostMessageResponse'
+import { ChannelType, EmbedType } from 'discord.js'
 import type {
   Guild as DiscordClient,
   TextChannel,
   APIEmbed as Embed,
   Message as MessageManager,
-} from "discord.js"
-import { ChannelClient } from "./channel.mjs"
-import { UserClient } from "./user.mjs"
-import { getDiscordServerMaxFileSize } from "./server.mjs"
+} from 'discord.js'
+import { ChannelClient } from './channel.mjs'
+import { UserClient } from './user.mjs'
+import { getDiscordServerMaxFileSize } from './server.mjs'
 
 interface SlackMessageFile {
-  type?: "message"
-  subtype?: string | "bot_message"
+  type?: 'message'
+  subtype?: string | 'bot_message'
   text?: string
   ts?: string
   user?: string
@@ -70,13 +70,10 @@ export class MessageClient {
     const maxFileSize = getDiscordServerMaxFileSize(discordClient)
 
     for (const channel of channels) {
-      if (!channel.deployId)
-        throw new Error(`Failed to deployed channel id of ${channel.id}`)
+      if (!channel.deployId) throw new Error(`Failed to deployed channel id of ${channel.id}`)
 
       const messageDirPath = join(srcDirpath, channel.name)
-      const messageFilePaths = await this.getAllSlackMessageFilePath(
-        messageDirPath
-      )
+      const messageFilePaths = await this.getAllSlackMessageFilePath(messageDirPath)
 
       for (const messageFilePath of messageFilePaths) {
         const messages = await this.getSlackMessageFile(messageFilePath)
@@ -87,33 +84,26 @@ export class MessageClient {
             message.text === undefined ||
             message.ts === undefined
           ) {
-            throw new Error("Message is missing required parameter")
+            throw new Error('Message is missing required parameter')
           }
 
           // Replace message content
-          const { content, urls } = await this.replaceMessageContent(
-            message.text
-          )
+          const { content, urls } = await this.replaceMessageContent(message.text)
 
           // Get pinned item
-          const pinIds = channel.pins ? channel.pins.split(",") : []
+          const pinIds = channel.pins ? channel.pins.split(',') : []
           const isPinned = pinIds.includes(message.ts)
 
           // Get attached file
           const files = message.files
             ? message.files
                 // Skip deleted file
-                .filter((file) => file.mode !== "tombstone")
+                .filter((file) => file.mode !== 'tombstone')
                 // Skip file size over max file size
                 .filter((file) => file.size && file.size < maxFileSize)
                 .map((file) => {
-                  if (
-                    !file.name ||
-                    !file.url_private ||
-                    !file.size ||
-                    !file.mimetype
-                  )
-                    throw new Error("File is missing required parameter")
+                  if (!file.name || !file.url_private || !file.size || !file.mimetype)
+                    throw new Error('File is missing required parameter')
 
                   return {
                     name: file.name,
@@ -126,11 +116,7 @@ export class MessageClient {
 
           let author: User | null = null
           if (message.bot_id) {
-            author = await this.userClient.getBot(
-              slackClient,
-              message.bot_id,
-              message.app_id
-            )
+            author = await this.userClient.getBot(slackClient, message.bot_id, message.app_id)
           } else if (message.user) {
             author = await this.userClient.getUser(slackClient, message.user)
           }
@@ -138,10 +124,10 @@ export class MessageClient {
           if (!author) {
             throw new Error(
               [
-                "Failed to get message author",
+                'Failed to get message author',
                 `Message Timestamp: ${message.ts}`,
                 `Message Content: ${content}`,
-              ].join("\n")
+              ].join('\n')
             )
           }
 
@@ -177,30 +163,20 @@ export class MessageClient {
    */
   async deployAllMessage(discordClient: DiscordClient) {
     // Get file channel manager
-    const fileChannel = await this.channelClient.getChannel("msd-file", 2)
-    if (!fileChannel) throw new Error("Failed to get deployed file channel")
-    if (!fileChannel.deployId)
-      throw new Error(`Failed to get deployed file channel id`)
+    const fileChannel = await this.channelClient.getChannel('msd-file', 2)
+    if (!fileChannel) throw new Error('Failed to get deployed file channel')
+    if (!fileChannel.deployId) throw new Error(`Failed to get deployed file channel id`)
 
-    const fileChannelManager = discordClient.channels.cache.get(
-      fileChannel.deployId
-    )
-    if (
-      fileChannelManager === undefined ||
-      fileChannelManager.type !== ChannelType.GuildText
-    )
-      throw new Error("Failed to get file channel manager")
+    const fileChannelManager = discordClient.channels.cache.get(fileChannel.deployId)
+    if (fileChannelManager === undefined || fileChannelManager.type !== ChannelType.GuildText)
+      throw new Error('Failed to get file channel manager')
 
     const channels = await this.channelClient.getAllChannel()
     for (const channel of channels) {
-      if (!channel.deployId)
-        throw new Error(`Failed to get deployed channel id of ${channel.name}`)
+      if (!channel.deployId) throw new Error(`Failed to get deployed channel id of ${channel.name}`)
 
       const channelManager = discordClient.channels.cache.get(channel.deployId)
-      if (
-        channelManager === undefined ||
-        channelManager.type !== ChannelType.GuildText
-      )
+      if (channelManager === undefined || channelManager.type !== ChannelType.GuildText)
         throw new Error(`Failed to get channel manager of ${channel.id}`)
 
       // Pagination message
@@ -222,15 +198,11 @@ export class MessageClient {
             channelDeployId: channel.deployId,
           },
           orderBy: {
-            timestamp: "asc",
+            timestamp: 'asc',
           },
         })
 
-        await this.deployManyMessage(
-          channelManager,
-          fileChannelManager,
-          messages
-        )
+        await this.deployManyMessage(channelManager, fileChannelManager, messages)
         skip += take
       }
     }
@@ -250,28 +222,25 @@ export class MessageClient {
     for (const message of messages) {
       const content =
         message.content && message.content.length > 4095
-          ? message.content.substring(0, 4095) + "…"
+          ? message.content.substring(0, 4095) + '…'
           : message.content
 
       const timestamp = fromUnixTime(parseFloat(message.timestamp))
 
-      let authorTypeIcon: "🟢" | "🔵" | "🤖" = "🟢"
+      let authorTypeIcon: '🟢' | '🔵' | '🤖' = '🟢'
       if (message.authorType === 2) {
-        authorTypeIcon = "🔵"
+        authorTypeIcon = '🔵'
       } else if (message.authorType === 3) {
-        authorTypeIcon = "🤖"
+        authorTypeIcon = '🤖'
       }
 
       const newFiles = message.files
-        ? await this.deployManyMessageFile(
-            fileChannelManager,
-            JSON.parse(message.files) as File[]
-          )
+        ? await this.deployManyMessageFile(fileChannelManager, JSON.parse(message.files) as File[])
         : []
 
       const imageEmbeds: Embed[] = newFiles.length
         ? newFiles
-            .filter((file) => file.mimetype.startsWith("image/"))
+            .filter((file) => file.mimetype.startsWith('image/'))
             .map((file) => ({
               title: `IMAGE: ${file.name}`,
               image: {
@@ -282,7 +251,7 @@ export class MessageClient {
 
       const fileEmbeds: Embed[] = newFiles.length
         ? newFiles
-            .filter((file) => !file.mimetype.startsWith("image/"))
+            .filter((file) => !file.mimetype.startsWith('image/'))
             .map((file) => ({
               title: `FILE: ${file.name}`,
               url: file.url,
@@ -307,7 +276,7 @@ export class MessageClient {
             icon_url: message.authorImageUrl,
           },
           footer: {
-            text: format(timestamp, "yyyy/MM/dd HH:mm"),
+            text: format(timestamp, 'yyyy/MM/dd HH:mm'),
           },
         },
         ...imageEmbeds,
@@ -327,27 +296,25 @@ export class MessageClient {
         if (!threadMessage)
           throw new Error(
             [
-              "Failed to get message to reply",
-              "Not found message to reply",
+              'Failed to get message to reply',
+              'Not found message to reply',
               `Message Timestamp: ${message.timestamp}`,
               `Message Content: ${message.content}`,
-            ].join("\n")
+            ].join('\n')
           )
         if (!threadMessage.deployId)
           throw new Error(
             [
-              "Failed to get message to reply",
-              "Not deployed Message to reply",
+              'Failed to get message to reply',
+              'Not deployed Message to reply',
               `Message Timestamp: ${message.timestamp}`,
               `Message Content: ${message.content}`,
-            ].join("\n")
+            ].join('\n')
           )
 
-        messageManager = await channelManager.messages.cache
-          .get(threadMessage.deployId)
-          ?.reply({
-            embeds: embeds,
-          })
+        messageManager = await channelManager.messages.cache.get(threadMessage.deployId)?.reply({
+          embeds: embeds,
+        })
       } else {
         messageManager = await channelManager.send({
           embeds: embeds,
@@ -357,11 +324,11 @@ export class MessageClient {
       if (!messageManager)
         throw new Error(
           [
-            "Failed to deploy message",
-            "Not found message manager",
+            'Failed to deploy message',
+            'Not found message manager',
             `Message Timestamp: ${message.timestamp}`,
             `Message Content: ${message.content}`,
-          ].join("\n")
+          ].join('\n')
         )
 
       // Deploy pinned item
@@ -387,16 +354,10 @@ export class MessageClient {
     // Delete all messages
     await Promise.all(
       channels.map(async (channel) => {
-        if (!channel.deployId)
-          throw new Error(`Failed to deployed channel id of ${channel.name}`)
+        if (!channel.deployId) throw new Error(`Failed to deployed channel id of ${channel.name}`)
 
-        const channelManager = discordClient.channels.cache.get(
-          channel.deployId
-        )
-        if (
-          channelManager === undefined ||
-          channelManager.type !== ChannelType.GuildText
-        )
+        const channelManager = discordClient.channels.cache.get(channel.deployId)
+        if (channelManager === undefined || channelManager.type !== ChannelType.GuildText)
           throw new Error(`Failed to get channel manager of ${channel.id}`)
 
         // Pagination message
@@ -415,7 +376,7 @@ export class MessageClient {
               channelDeployId: channel.deployId,
             },
             orderBy: {
-              timestamp: "asc",
+              timestamp: 'asc',
             },
           })
           await this.destroyManyMessage(channelManager, messages)
@@ -462,7 +423,7 @@ export class MessageClient {
         // Skip deploy if already hosted file
         let fileUrl = file.url
         let fileSize = file.size
-        if (urlParse(file.url).hostname !== "cdn.discordapp.com") {
+        if (urlParse(file.url).hostname !== 'cdn.discordapp.com') {
           const message = await fileChannelManager.send({
             files: [file.url],
           })
@@ -486,9 +447,7 @@ export class MessageClient {
    */
   async getSlackMessageFile(messageFilePath: string) {
     await access(messageFilePath, constants.R_OK)
-    return JSON.parse(
-      await readFile(messageFilePath, "utf8")
-    ) as SlackMessageFile[]
+    return JSON.parse(await readFile(messageFilePath, 'utf8')) as SlackMessageFile[]
   }
 
   /**
@@ -502,9 +461,7 @@ export class MessageClient {
         (fileOrDirName) =>
           // TODO: Replace with async function
           statSync(join(messageDirPath, fileOrDirName)).isFile() &&
-          new RegExp(
-            /[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]).json/g
-          ).test(fileOrDirName)
+          new RegExp(/[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]).json/g).test(fileOrDirName)
       )
       .map((fileOrDirName) => join(messageDirPath, fileOrDirName))
     return messageFilePaths
@@ -526,7 +483,7 @@ export class MessageClient {
     // Replace mention
     const mentions = newContent.match(/<@U[A-Z0-9]{10}>/g)
     if (mentions?.length) {
-      const userIds = mentions.map((mention) => mention.replace(/<@|>/g, ""))
+      const userIds = mentions.map((mention) => mention.replace(/<@|>/g, ''))
       for (const userId of userIds) {
         const username = await this.userClient.getUsername(userId)
         if (username) {
@@ -538,24 +495,20 @@ export class MessageClient {
     }
 
     // Replace channel mention
-    if (/<!channel>/.test(newContent))
-      newContent = newContent.replaceAll(/<!channel>/g, "@channel")
+    if (/<!channel>/.test(newContent)) newContent = newContent.replaceAll(/<!channel>/g, '@channel')
 
     // Replace bold letters
-    if (/\*.*\*/.test(newContent))
-      newContent = newContent.replaceAll(/\**\*/g, "**")
+    if (/\*.*\*/.test(newContent)) newContent = newContent.replaceAll(/\**\*/g, '**')
 
     //  Replace italic letters
     // if (/\_.*\_/.test(newContent))
     //   newContent = newContent.replaceAll(/\_*\_/g, "_")
 
     // Replace strikethrough
-    if (/~.*~/.test(newContent))
-      newContent = newContent.replaceAll(/~*~/g, "~~")
+    if (/~.*~/.test(newContent)) newContent = newContent.replaceAll(/~*~/g, '~~')
 
     // Replace quote
-    if (/&gt; .*/.test(newContent))
-      newContent = newContent.replaceAll(/&gt; /g, "> ")
+    if (/&gt; .*/.test(newContent)) newContent = newContent.replaceAll(/&gt; /g, '> ')
 
     // Replace String with url
     const newUrls: Url[] = []
@@ -571,8 +524,7 @@ export class MessageClient {
           ?.shift()
           ?.slice(1, -1)
 
-        if (!name || !url)
-          throw new Error(`Failed to slice string with url of ${stringWithUrl}`)
+        if (!name || !url) throw new Error(`Failed to slice string with url of ${stringWithUrl}`)
 
         newContent = newContent.replaceAll(stringWithUrl, name)
         newUrls.push({ name: name, url: url })
