@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "deploy": "run-s init migrate:channel deploy:channel migrate:user deploy:user migrate:message deploy:message",
     "init": "node --loader ts-node/esm ./command/init.mts && npm run prisma",
     "migrate:channel": "node --loader ts-node/esm ./command/migrate/channel.mts",
     "migrate:user": "node --loader ts-node/esm ./command/migrate/user.mts",
@@ -13,10 +14,9 @@
     "deploy:channel": "node --loader ts-node/esm ./command/deploy/channel.mts",
     "deploy:user": "node --loader ts-node/esm ./command/deploy/user.mts",
     "deploy:message": "node --loader ts-node/esm ./command/deploy/message.mts",
+    "destroy": "run-s 'destroy:message -- --yes' 'destroy:channel -- --yes'",
     "destroy:channel": "node --loader ts-node/esm ./command/destroy/channel.mts",
-    "destroy:user": "node --loader ts-node/esm ./command/destroy/user.mts",
     "destroy:message": "node --loader ts-node/esm ./command/destroy/message.mts",
-    "all": "run-s migrate:channel deploy:channel migrate:user deploy:user migrate:message deploy:message",
     "prisma": "yes | npx prisma migrate dev --name init && npx prisma migrate dev",
     "update": "npx ncu -u && npm install"
   },
@@ -34,10 +34,10 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.7.18",
+    "@types/node": "^18.7.19",
     "@types/prompts": "^2.0.14",
     "@types/uuid": "^8.3.4",
-    "npm-check-updates": "^16.2.1",
+    "npm-check-updates": "^16.3.2",
     "npm-run-all": "^4.1.5",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.3"

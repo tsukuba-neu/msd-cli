@@ -49,6 +49,7 @@ model Message {
   threadId        String?
   content         String?
   files           String?
+  urls            String?
   type            Int
   isPinned        Boolean
   isReplyed       Boolean

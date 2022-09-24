@@ -1,5 +1,6 @@
-import { clearLine, cursorTo } from "readline"
+import { clearLine, cursorTo } from "node:readline"
 import pc from "picocolors"
+import prompts from "prompts"
 
 export class Spinner {
   private stream: NodeJS.WriteStream & { fd: 1 } = process.stdout
@@ -33,7 +34,7 @@ export class Spinner {
     } else if (this.charsType === "warning") {
       char = pc.yellow(char)
     }
-    this.stream.write(char + " " + pc.blue(this.text))
+    this.stream.write(char + " " + pc.bold(pc.blue(this.text)))
     this.charIndex = (this.charIndex + 1) % chars.length
   }
 
@@ -46,10 +47,9 @@ export class Spinner {
     clearInterval(this.id)
   }
 
-  loading(text?: string) {
+  loading(text: string = "Loading") {
     this.stop()
-    if (text) this.text = text
-    if (this.text === "") this.text = "Loading"
+    this.text = text
     this.charsType = "loading"
     this.start()
   }
@@ -58,7 +58,9 @@ export class Spinner {
     this.stop()
     if (text) this.text = text
     this.charsType = "success"
-    console.log(pc.green(this.chars.success) + " " + pc.blue(this.text))
+    console.log(
+      pc.green(this.chars.success) + " " + pc.bold(pc.blue(this.text))
+    )
     if (message) console.log(message)
   }
 
@@ -66,11 +68,20 @@ export class Spinner {
     this.stop()
     if (text) this.text = text
     this.charsType = "failed"
-    console.log(pc.red(this.chars.failed) + " " + pc.blue(this.text))
+    console.log(pc.red(this.chars.failed) + " " + pc.bold(pc.blue(this.text)))
     if (message) console.error(message)
   }
 
   warning(text: string) {
-    console.log(pc.yellow(this.chars.warning) + " " + pc.yellow(text))
+    console.log(pc.yellow(this.chars.warning) + " " + pc.bold(pc.yellow(text)))
+  }
+
+  async confirm(text: string, skip: boolean = false) {
+    const confirm = await prompts({
+      type: skip ? null : "confirm",
+      name: "value",
+      message: pc.bold(pc.blue(text)),
+    })
+    if (!skip && !confirm.value) process.exit(0)
   }
 }

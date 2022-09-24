@@ -101,19 +101,20 @@ export class ChannelClient {
     if (!category?.deployId)
       throw new Error("Failed to get deployed init category")
 
-    const result = await discordClient.channels.create({
+    const channelManager = await discordClient.channels.create({
       name: channelName,
       type: ChannelType.GuildText,
       topic: option.topic,
       parent: category.deployId,
     })
+
     const newChannel: Channel = {
       id: channelId,
-      deployId: result.id,
-      name: result.name,
+      deployId: channelManager.id,
+      name: channelManager.name,
       categoryDeployId: category.deployId,
       type: option.channelType,
-      topic: result.topic || null,
+      topic: channelManager.topic || null,
       isArchived: option.isArchived,
       pins: null,
       createdAt: new Date(),
@@ -121,7 +122,7 @@ export class ChannelClient {
     }
 
     await this.updateChannel(newChannel)
-    return result
+    return channelManager
   }
 
   /**
@@ -130,7 +131,7 @@ export class ChannelClient {
    * @param channel
    */
   async destroyChannel(discordClient: DiscordClient, channel: Channel) {
-    // Skip undeployed channel
+    // Skip if already destroyed channel
     if (!channel.deployId) return
 
     try {
@@ -156,6 +157,30 @@ export class ChannelClient {
   }
 
   /**
+   * Deploy channel for hosting file
+   * @param discordClient
+   */
+  async deployFileChannel(discordClient: DiscordClient) {
+    return await this.deployChannel(discordClient, "msd-file", "C0000000000", {
+      channelType: 2,
+      topic: "channel for hosting file",
+      isArchived: true,
+    })
+  }
+
+  /**
+   * Destroy channel for hosting file
+   */
+  async destroyFileChannel(discordClient: DiscordClient) {
+    const fileChannel = await this.getChannel("msd-file", 2)
+
+    // Skip if already destroyed channel for hosting file
+    if (!fileChannel) return
+
+    await this.destroyChannel(discordClient, fileChannel)
+  }
+
+  /**
    * Deploy all channel
    */
   async deployAllChannel(discordClient: DiscordClient) {
@@ -178,7 +203,7 @@ export class ChannelClient {
           ? archiveCategory.deployId
           : defaultCategory.deployId
 
-        const result = await discordClient.channels.create({
+        const channelManager = await discordClient.channels.create({
           name: channel.name,
           type: ChannelType.GuildText,
           topic: channel.topic ? channel.topic : undefined,
@@ -187,11 +212,11 @@ export class ChannelClient {
 
         return {
           id: channel.id,
-          deployId: result.id,
-          name: result.name,
+          deployId: channelManager.id,
+          name: channelManager.name,
           categoryDeployId: categoryDeployId,
           type: 1,
-          topic: result.topic,
+          topic: channelManager.topic,
           isArchived: channel.isArchived,
           pins: channel.pins,
           createdAt: new Date(),
@@ -352,12 +377,4 @@ export class ChannelClient {
     })
     await this.client.$transaction([...query])
   }
-
-  // async connect(): Promise<void> {
-  //   await this.client.$connect()
-  // }
-
-  // async disconnect(): Promise<void> {
-  //   await this.client.$disconnect()
-  // }
 }

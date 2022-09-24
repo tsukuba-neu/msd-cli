@@ -1,7 +1,6 @@
 # 初回設定
 
 下記の初回設定を順番に進めてください  
-下記の設定は**移行元のSlackのワークスペース、移行先のDiscordのサーバーがあること**が前提です  
 
 1. [Voltaのインストール](#install-volta)
 2. [DiscordBotの作成](#create-discord-bot)
@@ -44,7 +43,7 @@ Node.jsのバージョン管理のため、[公式サイトのスタートガイ
 cp .env.example .env
 ```
 
-`.env`ファイルの環境変数の値に、SlackBotのトークン、DiscordBotのトークン、DiscordのサーバーIDなどの情報を設定する  
+`.env`ファイルの環境変数の値に、SlackBotのトークン、DiscordBotのトークン、DiscordのサーバーIDの情報を設定する  
 
 ```zsh
 export SLACK_BOT_TOKEN=""
