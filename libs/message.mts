@@ -94,21 +94,19 @@ export class MessageClient {
 
           // Get attached file
           const files = message.files
-            ? JSON.stringify(
-                message.files
-                  // Skip deleted file
-                  .filter((file) => file.mode !== "tombstone")
-                  // Skip file size over max file size
-                  .filter((file) => file.size && file.size < maxFileSize)
-                  .map((file) => {
-                    if (!file.url_private || !file.size)
-                      throw new Error("File is missing required parameter")
-                    return {
-                      url: file.url_private,
-                      size: file.size,
-                    } as File
-                  })
-              )
+            ? message.files
+                // Skip deleted file
+                .filter((file) => file.mode !== "tombstone")
+                // Skip file size over max file size
+                .filter((file) => file.size && file.size < maxFileSize)
+                .map((file) => {
+                  if (!file.url_private || !file.size)
+                    throw new Error("File is missing required parameter")
+                  return {
+                    url: file.url_private,
+                    size: file.size,
+                  } as File
+                })
             : null
 
           let author: User | null = null
@@ -133,7 +131,7 @@ export class MessageClient {
           }
 
           // HACK: Split message to prevent images from show over embed
-          if (content && files) {
+          if (content && files?.length) {
             newMessages.push({
               timestamp: message.ts,
               deployId: null,
@@ -159,7 +157,7 @@ export class MessageClient {
               channelDeployId: channel.deployId,
               threadId: null,
               content: null,
-              files: files,
+              files: JSON.stringify(files),
               type: 1,
               isPinned: false,
               isReplyed: false,
@@ -171,14 +169,14 @@ export class MessageClient {
               createdAt: new Date(),
               updatedAt: new Date(),
             })
-          } else {
+          } else if (content || files?.length) {
             newMessages.push({
               timestamp: message.ts,
               deployId: null,
               channelDeployId: channel.deployId,
               threadId: message.thread_ts || null,
               content: content,
-              files: files,
+              files: files?.length ? JSON.stringify(files) : null,
               type: 1,
               isPinned: isPinned,
               isReplyed: message.thread_ts && !message.replies ? true : false,
@@ -268,7 +266,7 @@ export class MessageClient {
             message.content.substring(0, 4044) +
             "…"
           : "------------------------------------------------\n" +
-            message.content
+            (message.content ? message.content : "")
       const fileUrls = message.files
         ? (JSON.parse(message.files) as File[]).map((file) => file.url)
         : undefined
