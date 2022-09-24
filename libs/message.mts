@@ -241,12 +241,9 @@ export class MessageClient {
   ) {
     for (const message of messages) {
       const content =
-        message.content && message.content.length > 4044
-          ? "------------------------------------------------\n" +
-            message.content.substring(0, 4044) +
-            "…"
-          : "------------------------------------------------\n" +
-            (message.content ? message.content : "")
+        message.content && message.content.length > 4095
+          ? message.content.substring(0, 4095) + "…"
+          : message.content
 
       const timestamp = fromUnixTime(parseFloat(message.timestamp))
 
@@ -294,7 +291,7 @@ export class MessageClient {
         {
           type: EmbedType.Rich,
           color: message.authorColor,
-          description: content,
+          description: content || undefined,
           timestamp: formatISO(timestamp),
           author: {
             name: `${authorTypeIcon} ${message.authorName}`,
