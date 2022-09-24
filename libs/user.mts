@@ -71,29 +71,29 @@ export class UserClient {
   }
 
   /**
-   * Deploy user image file
+   * Deploy all user image file
    * @param discordClient
    */
-  async deployUserImageFile(discordClient: DiscordClient) {
+  async deployAllUserImageFile(discordClient: DiscordClient) {
+    // Get file channel manager
     const fileChannel = await this.channelClient.getChannel("msd-file", 2)
     if (!fileChannel) throw new Error("Failed to get deployed file channel")
     if (!fileChannel.deployId)
       throw new Error(`Failed to get deployed file channel id`)
 
-    const channelManager = discordClient.channels.cache.get(
+    const fileChannelManager = discordClient.channels.cache.get(
       fileChannel.deployId
     )
     if (
-      channelManager === undefined ||
-      channelManager.type !== ChannelType.GuildText
+      fileChannelManager === undefined ||
+      fileChannelManager.type !== ChannelType.GuildText
     )
       throw new Error("Failed to get file channel manager")
 
     const users = await this.client.user.findMany()
     const newUsers: User[] = []
     for (const user of users) {
-      const message = await channelManager.send({
-        content: user.name,
+      const message = await fileChannelManager.send({
         files: [user.imageUrl],
       })
       const newUser = (() => user)()

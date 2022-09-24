@@ -131,7 +131,7 @@ export class ChannelClient {
    * @param channel
    */
   async destroyChannel(discordClient: DiscordClient, channel: Channel) {
-    // Skip undeployed channel
+    // Skip if already destroyed channel
     if (!channel.deployId) return
 
     try {
@@ -173,8 +173,10 @@ export class ChannelClient {
    */
   async destroyFileChannel(discordClient: DiscordClient) {
     const fileChannel = await this.getChannel("msd-file", 2)
-    if (!fileChannel || !fileChannel.deployId)
-      throw new Error("Failed to get deployed channel for hosting file")
+
+    // Skip if already destroyed channel for hosting file
+    if (!fileChannel) return
+
     await this.destroyChannel(discordClient, fileChannel)
   }
 

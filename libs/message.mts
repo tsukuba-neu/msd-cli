@@ -2,6 +2,7 @@ import { PrismaClient, Message, User } from "@prisma/client"
 import { access, readFile, constants, readdir } from "node:fs/promises"
 import { statSync } from "node:fs"
 import { join } from "node:path"
+import { parse as urlParse } from "node:url"
 import { format, formatISO, fromUnixTime } from "date-fns"
 import { WebClient as SlackClient } from "@slack/web-api"
 import { FileElement } from "@slack/web-api/dist/response/ChatPostMessageResponse"
@@ -33,8 +34,10 @@ interface SlackMessageFile {
 }
 
 interface File {
+  name: string
   url: string
   size: number
+  mimetype: string
 }
 
 export class MessageClient {
@@ -97,11 +100,19 @@ export class MessageClient {
                 // Skip file size over max file size
                 .filter((file) => file.size && file.size < maxFileSize)
                 .map((file) => {
-                  if (!file.url_private || !file.size)
+                  if (
+                    !file.name ||
+                    !file.url_private ||
+                    !file.size ||
+                    !file.mimetype
+                  )
                     throw new Error("File is missing required parameter")
+
                   return {
+                    name: file.name,
                     url: file.url_private,
                     size: file.size,
+                    mimetype: file.mimetype,
                   } as File
                 })
             : null
@@ -127,65 +138,24 @@ export class MessageClient {
             )
           }
 
-          // HACK: Split message to prevent images from show over embed
-          if (content && files?.length) {
-            newMessages.push({
-              timestamp: message.ts,
-              deployId: null,
-              channelDeployId: channel.deployId,
-              threadId: message.thread_ts || null,
-              content: content,
-              files: null,
-              type: 1,
-              isPinned: isPinned,
-              isReplyed: message.thread_ts && !message.replies ? true : false,
-              authorId: author.id,
-              authorName: author.name,
-              authorType: author.type,
-              authorColor: author.color,
-              authorImageUrl: author.imageUrl,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            })
-
-            newMessages.push({
-              timestamp: String(parseFloat(message.ts) + 0.000001),
-              deployId: null,
-              channelDeployId: channel.deployId,
-              threadId: null,
-              content: null,
-              files: JSON.stringify(files),
-              type: 1,
-              isPinned: false,
-              isReplyed: false,
-              authorId: author.id,
-              authorName: author.name,
-              authorType: author.type,
-              authorColor: author.color,
-              authorImageUrl: author.imageUrl,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            })
-          } else if (content || files?.length) {
-            newMessages.push({
-              timestamp: message.ts,
-              deployId: null,
-              channelDeployId: channel.deployId,
-              threadId: message.thread_ts || null,
-              content: content,
-              files: files?.length ? JSON.stringify(files) : null,
-              type: 1,
-              isPinned: isPinned,
-              isReplyed: message.thread_ts && !message.replies ? true : false,
-              authorId: author.id,
-              authorName: author.name,
-              authorType: author.type,
-              authorColor: author.color,
-              authorImageUrl: author.imageUrl,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            })
-          }
+          newMessages.push({
+            timestamp: message.ts,
+            deployId: null,
+            channelDeployId: channel.deployId,
+            threadId: message.thread_ts || null,
+            content: content,
+            files: files?.length ? JSON.stringify(files) : null,
+            type: 1,
+            isPinned: isPinned,
+            isReplyed: message.thread_ts && !message.replies ? true : false,
+            authorId: author.id,
+            authorName: author.name,
+            authorType: author.type,
+            authorColor: author.color,
+            authorImageUrl: author.imageUrl,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
         }
 
         await this.updateManyMessage(newMessages)
@@ -198,6 +168,21 @@ export class MessageClient {
    * @param discordClient
    */
   async deployAllMessage(discordClient: DiscordClient) {
+    // Get file channel manager
+    const fileChannel = await this.channelClient.getChannel("msd-file", 2)
+    if (!fileChannel) throw new Error("Failed to get deployed file channel")
+    if (!fileChannel.deployId)
+      throw new Error(`Failed to get deployed file channel id`)
+
+    const fileChannelManager = discordClient.channels.cache.get(
+      fileChannel.deployId
+    )
+    if (
+      fileChannelManager === undefined ||
+      fileChannelManager.type !== ChannelType.GuildText
+    )
+      throw new Error("Failed to get file channel manager")
+
     const channels = await this.channelClient.getAllChannel()
     for (const channel of channels) {
       if (!channel.deployId)
@@ -233,7 +218,11 @@ export class MessageClient {
           },
         })
 
-        await this.deployManyMessage(channelManager, messages)
+        await this.deployManyMessage(
+          channelManager,
+          fileChannelManager,
+          messages
+        )
         skip += take
       }
     }
@@ -242,21 +231,15 @@ export class MessageClient {
   /**
    * Deploy many message
    * @param channelManager
+   * @param fileChannelManager
    * @param messages
    */
-  async deployManyMessage(channelManager: TextChannel, messages: Message[]) {
+  async deployManyMessage(
+    channelManager: TextChannel,
+    fileChannelManager: TextChannel,
+    messages: Message[]
+  ) {
     for (const message of messages) {
-      if (message.content && message.files) {
-        throw new Error(
-          [
-            "Failed to deploy message",
-            "Not supposed to set content and file in message at the same time",
-            `Message Timestamp: ${message.timestamp}`,
-            `Message Content: ${message.content}`,
-          ].join("\n")
-        )
-      }
-
       const content =
         message.content && message.content.length > 4044
           ? "------------------------------------------------\n" +
@@ -264,9 +247,7 @@ export class MessageClient {
             "…"
           : "------------------------------------------------\n" +
             (message.content ? message.content : "")
-      const fileUrls = message.files
-        ? (JSON.parse(message.files) as File[]).map((file) => file.url)
-        : undefined
+
       const timestamp = fromUnixTime(parseFloat(message.timestamp))
 
       let authorTypeIcon: "🟢" | "🔵" | "🤖" = "🟢"
@@ -275,6 +256,39 @@ export class MessageClient {
       } else if (message.authorType === 3) {
         authorTypeIcon = "🤖"
       }
+
+      const newFiles = message.files
+        ? await this.deployManyMessageFile(
+            fileChannelManager,
+            JSON.parse(message.files) as File[]
+          )
+        : []
+
+      const imageEmbeds: Embed[] = newFiles.length
+        ? newFiles
+            .filter((file) => file.mimetype.startsWith("image/"))
+            .map((file) => ({
+              title: file.name,
+              image: {
+                url: file.url,
+              },
+              footer: {
+                text: format(timestamp, "yyyy/MM/dd HH:mm"),
+              },
+            }))
+        : []
+
+      const fileEmbeds: Embed[] = newFiles.length
+        ? newFiles
+            .filter((file) => !file.mimetype.startsWith("image/"))
+            .map((file) => ({
+              title: file.name,
+              description: file.url,
+              footer: {
+                text: format(timestamp, "yyyy/MM/dd HH:mm"),
+              },
+            }))
+        : []
 
       const embeds: Embed[] = [
         {
@@ -290,6 +304,8 @@ export class MessageClient {
             text: format(timestamp, "yyyy/MM/dd HH:mm"),
           },
         },
+        ...imageEmbeds,
+        ...fileEmbeds,
       ]
 
       // Deploy message
@@ -324,12 +340,10 @@ export class MessageClient {
           .get(threadMessage.deployId)
           ?.reply({
             embeds: embeds,
-            files: fileUrls,
           })
       } else {
         messageManager = await channelManager.send({
           embeds: embeds,
-          files: fileUrls,
         })
       }
 
@@ -351,6 +365,7 @@ export class MessageClient {
       // Update message
       const newMessage = (() => message)()
       newMessage.deployId = messageManager.id
+      newMessage.files = newFiles.length ? JSON.stringify(newFiles) : null
       await this.updateManyMessage([newMessage])
     }
   }
@@ -428,6 +443,34 @@ export class MessageClient {
         })
     )
     await this.updateManyMessage(newMessages)
+  }
+
+  /**
+   * Deploy many message file
+   * @param fileChannelManager
+   */
+  async deployManyMessageFile(fileChannelManager: TextChannel, files: File[]) {
+    return await Promise.all(
+      files.map(async (file) => {
+        // Skip deploy if already hosted file
+        let fileUrl = file.url
+        let fileSize = file.size
+        if (urlParse(file.url).hostname !== "cdn.discordapp.com") {
+          const message = await fileChannelManager.send({
+            files: [file.url],
+          })
+          fileUrl = message.attachments.map((file) => file.url)[0]
+          fileSize = message.attachments.map((file) => file.size)[0]
+        }
+
+        return {
+          name: file.name,
+          url: fileUrl,
+          size: fileSize,
+          mimetype: file.mimetype,
+        } as File
+      })
+    )
   }
 
   /**

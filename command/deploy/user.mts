@@ -45,7 +45,7 @@ interface Options {
 
   spinner.loading("Deploy user image file")
   try {
-    await userClient.deployUserImageFile(discordClient)
+    await userClient.deployAllUserImageFile(discordClient)
   } catch (error) {
     spinner.failed(null, error)
     process.exit(1)
