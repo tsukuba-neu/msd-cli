@@ -360,45 +360,6 @@ export class MessageClient {
     }
   }
 
-  // TODO: 後で消す
-  /**
-   * @deplicated Deploy many file
-   * @param channelManager
-   * @param message
-   * @param files
-   * @param maxFileSize
-   */
-  async deployManyFile(
-    channelManager: TextChannel,
-    message: Message,
-    files: File[],
-    maxFileSize: 8000000 | 50000000 | 100000000
-  ) {
-    // HACK: If file exceeds max upload file size, file url is attached without uploading file
-    const sizeOverFileUrls = files
-      ?.filter((file) => file.size && file.size >= maxFileSize)
-      .map((file) => file.url)
-    const uploadFileUrls = files
-      ?.filter((file) => file.size && file.size < maxFileSize)
-      .map((file) => file.url)
-
-    //  Deploy message with file
-    const sendMessage = await channelManager.send({
-      content: sizeOverFileUrls.join("\n"),
-      files: uploadFileUrls,
-    })
-
-    // Update message with file
-    const newMessage = (() => message)()
-    newMessage.deployId = sendMessage.id
-    await this.updateManyMessage([newMessage])
-
-    // Deploy pinned item
-    if (!message.content && message.isPinned) {
-      await sendMessage.pin()
-    }
-  }
-
   /**
    * Destroy all message
    */
