@@ -24,7 +24,7 @@
     "@discordjs/rest": "^1.2.0",
     "@prisma/client": "^4.4.0",
     "@slack/web-api": "^6.7.2",
-    "commander": "^9.4.0",
+    "commander": "^9.4.1",
     "date-fns": "^2.29.3",
     "discord.js": "^14.5.0",
     "dotenv": "^16.0.2",
