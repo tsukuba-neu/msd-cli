@@ -365,6 +365,7 @@ export class ChannelClient {
         },
       })
     })
+
     await this.client.$transaction([...query])
   }
 }

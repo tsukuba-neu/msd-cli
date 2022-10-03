@@ -252,6 +252,7 @@ export class UserClient {
         },
       })
     )
+
     await this.client.$transaction([...query])
   }
 }

@@ -582,6 +582,7 @@ export class MessageClient {
         },
       })
     )
+
     await this.client.$transaction([...query])
   }
 }
