@@ -180,8 +180,6 @@ export class MessageClient {
         throw new Error(`Failed to get channel manager of ${channel.id}`)
 
       // Pagination message
-      const take = 100
-      let skip = 0
       const total = await this.client.message.count({
         where: {
           // Get only undeployed message for redeploy
@@ -189,10 +187,11 @@ export class MessageClient {
           channelDeployId: channel.deployId,
         },
       })
-      while (skip < total) {
+
+      const take = 100
+      for (let skip = 0; skip < total; skip += take) {
         const messages = await this.client.message.findMany({
           take: take,
-          skip: skip,
           where: {
             deployId: { equals: null },
             channelDeployId: channel.deployId,
@@ -203,7 +202,6 @@ export class MessageClient {
         })
 
         await this.deployManyMessage(channelManager, fileChannelManager, messages)
-        skip += take
       }
     }
   }
@@ -332,11 +330,9 @@ export class MessageClient {
         )
 
       // Deploy pinned item
-      if (message.isPinned) {
-        await messageManager.pin()
-      }
+      if (message.isPinned) await messageManager.pin()
 
-      // Update message
+      // Update one by one message
       const newMessage = (() => message)()
       newMessage.deployId = messageManager.id
       newMessage.files = newFiles.length ? JSON.stringify(newFiles) : null
@@ -361,18 +357,18 @@ export class MessageClient {
           throw new Error(`Failed to get channel manager of ${channel.id}`)
 
         // Pagination message
-        const take = 100
-        let skip = 0
         const total = await this.client.message.count({
           where: {
             channelDeployId: channel.deployId,
           },
         })
-        while (skip < total) {
+
+        const take = 100
+        for (let skip = 0; skip < total; skip += take) {
           const messages = await this.client.message.findMany({
             take: take,
-            skip: skip,
             where: {
+              NOT: { deployId: { equals: null } },
               channelDeployId: channel.deployId,
             },
             orderBy: {
@@ -380,7 +376,6 @@ export class MessageClient {
             },
           })
           await this.destroyManyMessage(channelManager, messages)
-          skip += take
         }
       })
     )
@@ -582,6 +577,7 @@ export class MessageClient {
         },
       })
     )
+
     await this.client.$transaction([...query])
   }
 }

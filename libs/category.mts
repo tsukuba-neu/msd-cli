@@ -97,6 +97,7 @@ export class CategoryClient {
         },
       })
     )
+
     await this.client.$transaction([...query])
   }
 
