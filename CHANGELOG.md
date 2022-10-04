@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.1](https://github.com/revoltage-inc/msd-cli/compare/v1.3.0...v1.3.1) (2022-10-04)
+
+
+### Bug Fixes
+
+* 106 メッセージのデプロイ対象・削除対象の取得がずれる問題を修正 ([91915a4](https://github.com/revoltage-inc/msd-cli/commit/91915a4876f745fc8d35cf6a16777cd27124a2e0))
+* 106 リファクタリング ([bcb0117](https://github.com/revoltage-inc/msd-cli/commit/bcb0117225f05b0edd65f1d37cbc9080cbee9175))
+* 106 改行を挿入 ([a9ea67e](https://github.com/revoltage-inc/msd-cli/commit/a9ea67e80361bd9c6fe1f0ad42ac11874a084525))
+
 ## [1.2.2](https://github.com/revoltage-inc/msd-cli/compare/v1.2.1...v1.2.2) (2022-09-24)
 
 
