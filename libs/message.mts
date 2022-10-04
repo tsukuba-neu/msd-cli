@@ -330,11 +330,9 @@ export class MessageClient {
         )
 
       // Deploy pinned item
-      if (message.isPinned) {
-        await messageManager.pin()
-      }
+      if (message.isPinned) await messageManager.pin()
 
-      // Update message
+      // Update one by one message
       const newMessage = (() => message)()
       newMessage.deployId = messageManager.id
       newMessage.files = newFiles.length ? JSON.stringify(newFiles) : null
