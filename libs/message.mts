@@ -513,7 +513,7 @@ export class MessageClient {
 
     // Replace String with url
     const newUrls: Url[] = []
-    const stringWithUrls = newContent.match(/<http[s]?:\/\/.*\|.*>/g)
+    const stringWithUrls = newContent.match(/<https?:\/\/.+?\|.+?>/g)
     if (stringWithUrls?.length) {
       for (const stringWithUrl of stringWithUrls) {
         const name = stringWithUrl
