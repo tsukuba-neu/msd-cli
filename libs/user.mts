@@ -154,6 +154,25 @@ export class UserClient {
   async getBot(slackClient: SlackClient, botId: string, appId?: string) {
     let bot: User | null = null
 
+    // Return dummy response for Slackbot (B01)
+    if (botId === 'B01') {
+      bot = {
+        id: 'USLACKBOT',
+        appId: null,
+        botId: 'B01',
+        name: 'Slackbot',
+        type: 3,
+        color: parseInt('808080', 16),
+        email: null,
+        isDeleted: false,
+        imageUrl:
+          'https://a.slack-edge.com/80588/marketing/img/avatars/slackbot/avatar-slackbot@2x.png',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      return bot
+    }
+
     bot = await this.client.user.findFirst({
       where: {
         botId: appId ? undefined : botId,
