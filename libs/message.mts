@@ -508,9 +508,6 @@ export class MessageClient {
     // Replace strikethrough
     if (/~.*~/.test(newContent)) newContent = newContent.replaceAll(/~*~/g, '~~')
 
-    // Replace quote
-    if (/&gt; .*/.test(newContent)) newContent = newContent.replaceAll(/&gt; /g, '> ')
-
     // Replace String with url
     const newUrls: Url[] = []
     const stringWithUrls = newContent.match(/<https?:\/\/.+?\|.+?>/g)
@@ -530,6 +527,17 @@ export class MessageClient {
         newContent = newContent.replaceAll(stringWithUrl, name)
         newUrls.push({ name: name, url: url })
       }
+    }
+
+    // Replace html entities
+    // https://api.slack.com/reference/surfaces/formatting#escaping
+    const entities = [
+      ['&amp;', '&'],
+      ['&lt;', '<'],
+      ['&gt;', '>'],
+    ]
+    for (const [from, to] of entities) {
+      newContent = newContent.replaceAll(from, to)
     }
 
     return {
