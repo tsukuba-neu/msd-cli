@@ -476,7 +476,7 @@ export class MessageClient {
       }
 
     // Replace mention
-    const mentions = newContent.match(/<@U[A-Z0-9]{10}>/g)
+    const mentions = newContent.match(/<@U[A-Z0-9]+?>/g)
     if (mentions?.length) {
       const userIds = mentions.map((mention) => mention.replace(/<@|>/g, ''))
       for (const userId of userIds) {
