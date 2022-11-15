@@ -282,6 +282,12 @@ export class MessageClient {
         ...urlEmbeds,
       ]
 
+      // If embeds length is over 10, truncate it
+      if (embeds.length > 10) {
+        // ToDo: Show some warnings?
+        embeds.length = 10
+      }
+
       // Deploy message
       let messageManager: MessageManager | undefined = undefined
       if (message.isReplyed && message.threadId) {
