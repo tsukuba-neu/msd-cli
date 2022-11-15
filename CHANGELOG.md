@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/revoltage-inc/msd-cli/compare/v1.5.0...v1.5.1) (2022-11-15)
+
+
+### Bug Fixes
+
+* Slackbotの情報はダミーデータを使用する ([c683911](https://github.com/revoltage-inc/msd-cli/commit/c683911e2f06ad4823a65a6324d7c3bf3a7e8213))
+* ユーザIDの桁数が10以外のメンションに対応する ([c1cbc29](https://github.com/revoltage-inc/msd-cli/commit/c1cbc295631b943d17303496303df53b46da9fef))
+
 ## [1.3.1](https://github.com/revoltage-inc/msd-cli/compare/v1.3.0...v1.3.1) (2022-10-04)
 
 
