@@ -1,6 +1,6 @@
 {
   "name": "msd-cli",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "CLI to migrate from Slack to Discord",
   "author": "@yogarasu",
   "license": "MIT",
