@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.2](https://github.com/revoltage-inc/msd-cli/compare/v1.5.1...v1.5.2) (2022-11-26)
+
+
+### Bug Fixes
+
+* 144 パッケージを更新 ([21976e6](https://github.com/revoltage-inc/msd-cli/commit/21976e6acc599e7ad988911858fce606de9baa63))
+* 144 初期設定のリンクを修正 ([9c135a8](https://github.com/revoltage-inc/msd-cli/commit/9c135a80fafd535cffd82bdb0e44337baed3a3ce))
+
 ## [1.5.1](https://github.com/revoltage-inc/msd-cli/compare/v1.5.0...v1.5.1) (2022-11-15)
 
 
