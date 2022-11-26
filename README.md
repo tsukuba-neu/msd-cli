@@ -26,7 +26,7 @@ SlackのエクスポートデータをDiscordに出力できるデータに変�
 
 - [移行できる項目と移行できない項目](./docs/migration.md)
 - [仕様](./docs/specification.md)
-- [初回設定](./docs/init.md)
+- [初回設定](./docs/setting.md)
 - [参考リンク](./docs/reference.md)
 
 ## 使用方法
