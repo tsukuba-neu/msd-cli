@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.3](https://github.com/revoltage-inc/msd-cli/compare/v1.5.2...v1.5.3) (2022-11-26)
+
+
+### Bug Fixes
+
+* 147 コマンドのディレクトリをリネーム ([445e4fd](https://github.com/revoltage-inc/msd-cli/commit/445e4fd7fc9f85e8653da552cc35872342d10a5d))
+* 147 コマンド実行時に警告が出ないように修正 ([c62ee92](https://github.com/revoltage-inc/msd-cli/commit/c62ee921d721dd77cefeebc09bec870c45753996))
+
 ## [1.5.2](https://github.com/revoltage-inc/msd-cli/compare/v1.5.1...v1.5.2) (2022-11-26)
 
 
