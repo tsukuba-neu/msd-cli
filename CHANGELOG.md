@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.4](https://github.com/revoltage-inc/msd-cli/compare/v1.5.3...v1.5.4) (2023-01-28)
+
+
+### Bug Fixes
+
+* 150 json5の脆弱性のあるバージョンをオーバーライド ([ecf4ce7](https://github.com/revoltage-inc/msd-cli/commit/ecf4ce7b416b1e93c900c8f00ca555e0beb906e8))
+* 150 パッケージを更新 ([a0af6c0](https://github.com/revoltage-inc/msd-cli/commit/a0af6c039e4bc94bd69ad7fdb9090c46a3230c1a))
+
 ## [1.5.3](https://github.com/revoltage-inc/msd-cli/compare/v1.5.2...v1.5.3) (2022-11-26)
 
 
