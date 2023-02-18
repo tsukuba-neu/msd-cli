@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.5](https://github.com/revoltage-inc/msd-cli/compare/v1.5.4...v1.5.5) (2023-02-18)
+
+
+### Bug Fixes
+
+* 154 パッケージの更新を自動マージするworkflowを追加 ([cf05e63](https://github.com/revoltage-inc/msd-cli/commit/cf05e631a4828019e2775ba0a6dd0d2ebdc51bbb))
+* 154 パッケージを更新 ([88dd78f](https://github.com/revoltage-inc/msd-cli/commit/88dd78fb7467ab3fc4be24f5beb9e2c42ab15a0c))
+* 154 リネーム ([79159ba](https://github.com/revoltage-inc/msd-cli/commit/79159bac9a3d9af6970c4b8d44bfb2adf8d80381))
+
 ## [1.5.4](https://github.com/revoltage-inc/msd-cli/compare/v1.5.3...v1.5.4) (2023-01-28)
 
 
