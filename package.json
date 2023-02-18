@@ -22,26 +22,26 @@
   },
   "dependencies": {
     "@discordjs/rest": "^1.5.0",
-    "@prisma/client": "^4.9.0",
-    "@slack/web-api": "^6.8.0",
+    "@prisma/client": "^4.10.1",
+    "@slack/web-api": "^6.8.1",
     "commander": "^10.0.0",
     "date-fns": "^2.29.3",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "picocolors": "^1.0.0",
-    "prisma": "^4.9.0",
+    "prisma": "^4.10.1",
     "prompts": "^2.4.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.18",
+    "@types/node": "^18.14.0",
     "@types/prompts": "^2.4.2",
     "@types/uuid": "^9.0.0",
-    "npm-check-updates": "^16.6.3",
+    "npm-check-updates": "^16.7.5",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.8.3",
+    "prettier": "^2.8.4",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.5"
   },
   "overrides": {
     "json5": "^2.2.2"
